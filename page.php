@@ -1,0 +1,12 @@
+<?php get_header(); ?>
+
+<div id="root">
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="flex flex-col items-center gap-4">
+            <i class="fa-solid fa-circle-notch animate-spin text-teal-600 text-4xl"></i>
+            <p class="text-slate-500 font-medium animate-pulse">Loading Page Data...</p>
+        </div>
+    </div>
+</div>
+
+<?php get_footer(); ?>

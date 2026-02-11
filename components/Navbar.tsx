@@ -3,6 +3,15 @@ import React, { useState } from 'react';
 import BookingModal from './BookingModal';
 import { DetailedDepartment, SocialLinks } from '../types';
 
+declare global {
+  interface Window {
+    wpData: {
+      template_url: string;
+      site_url: string;
+    };
+  }
+}
+
 interface NavbarProps {
   onNavigate?: (id: string) => void;
   isLoggedIn?: boolean;
@@ -14,6 +23,9 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ onNavigate, isLoggedIn, onAdminClick, departments, socialLinks }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+
+  // Safely get theme URL
+  const themeUrl = window.wpData?.template_url || '';
 
   const navLinks = [
     { name: 'Home', id: 'home' },
@@ -63,9 +75,14 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, isLoggedIn, onAdminClick, d
               >
                 <div className="h-16 w-16 flex items-center justify-center p-1">
                   <img 
-                    src="logo.png" 
+                    src={`${themeUrl}/logo.png`} 
                     alt="Taita Taveta County Logo" 
                     className="max-h-full max-w-full object-contain drop-shadow-md"
+                    onError={(e) => {
+                       // Fallback icon if image doesn't exist yet in the directory
+                       e.currentTarget.style.display = 'none';
+                       e.currentTarget.parentElement!.innerHTML = '<i class="fa-solid fa-house-medical text-teal-600 text-3xl"></i>';
+                    }}
                   />
                 </div>
                 <div className="hidden xs:block">

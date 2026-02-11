@@ -1,16 +1,16 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import Navbar from './components/Navbar';
-import ChatWidget from './components/ChatWidget';
-import FeedbackForm from './components/FeedbackForm';
-import DepartmentDetail from './components/DepartmentDetail';
-import BookingModal from './components/BookingModal';
-import TestimonialCarousel from './components/TestimonialCarousel';
-import ResourcesPage from './components/ResourcesPage';
-import SHAPage from './components/SHAPage';
-import AdminDashboard from './components/AdminDashboard';
-import { DEPARTMENTS as INITIAL_DEPARTMENTS, SERVICES as INITIAL_SERVICES, RESOURCES as INITIAL_RESOURCES, SOCIAL_LINKS as INITIAL_SOCIAL_LINKS } from './constants';
-import { FeedbackEntry, DetailedDepartment, SocialLinks } from './types';
+import Navbar from './components/Navbar.tsx';
+import ChatWidget from './components/ChatWidget.tsx';
+import FeedbackForm from './components/FeedbackForm.tsx';
+import DepartmentDetail from './components/DepartmentDetail.tsx';
+import BookingModal from './components/BookingModal.tsx';
+import TestimonialCarousel from './components/TestimonialCarousel.tsx';
+import ResourcesPage from './components/ResourcesPage.tsx';
+import SHAPage from './components/SHAPage.tsx';
+import AdminDashboard from './components/AdminDashboard.tsx';
+import { DEPARTMENTS as INITIAL_DEPARTMENTS, SERVICES as INITIAL_SERVICES, RESOURCES as INITIAL_RESOURCES, SOCIAL_LINKS as INITIAL_SOCIAL_LINKS } from './constants.tsx';
+import { FeedbackEntry, DetailedDepartment, SocialLinks } from './types.ts';
 
 const DepartmentSkeleton = () => (
   <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 flex flex-col animate-pulse">
@@ -26,44 +26,12 @@ const DepartmentSkeleton = () => (
   </div>
 );
 
-const ServiceSkeleton = () => (
-  <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 flex gap-6 animate-pulse">
-    <div className="flex-shrink-0 w-12 h-12 bg-slate-200 rounded-2xl"></div>
-    <div className="flex-1 space-y-4">
-      <div className="flex justify-between items-start">
-        <div className="h-5 bg-slate-200 rounded-md w-1/2"></div>
-        <div className="h-4 bg-slate-200 rounded-md w-16"></div>
-      </div>
-      <div className="space-y-2">
-        <div className="h-4 bg-slate-100 rounded-md w-full"></div>
-        <div className="h-4 bg-slate-100 rounded-md w-3/4"></div>
-      </div>
-    </div>
-  </div>
-);
-
 const App: React.FC = () => {
-  // Persistence state
-  const [departments, setDepartments] = useState<DetailedDepartment[]>(() => {
-    const saved = localStorage.getItem('hospital_departments');
-    return saved ? JSON.parse(saved) : INITIAL_DEPARTMENTS;
-  });
-  const [services, setServices] = useState(() => {
-    const saved = localStorage.getItem('hospital_services');
-    return saved ? JSON.parse(saved) : INITIAL_SERVICES;
-  });
-  const [resources, setResources] = useState(() => {
-    const saved = localStorage.getItem('hospital_resources');
-    return saved ? JSON.parse(saved) : INITIAL_RESOURCES;
-  });
-  const [feedback, setFeedback] = useState<FeedbackEntry[]>(() => {
-    const saved = localStorage.getItem('hospital_feedback');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [socialLinks, setSocialLinks] = useState<SocialLinks>(() => {
-    const saved = localStorage.getItem('hospital_social_links');
-    return saved ? JSON.parse(saved) : INITIAL_SOCIAL_LINKS;
-  });
+  const [departments, setDepartments] = useState<DetailedDepartment[]>(INITIAL_DEPARTMENTS);
+  const [services, setServices] = useState(INITIAL_SERVICES);
+  const [resources, setResources] = useState(INITIAL_RESOURCES);
+  const [feedback, setFeedback] = useState<FeedbackEntry[]>([]);
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>(INITIAL_SOCIAL_LINKS);
 
   const [selectedDept, setSelectedDept] = useState<DetailedDepartment | null>(null);
   const [isResourcesView, setIsResourcesView] = useState(false);
@@ -76,35 +44,35 @@ const App: React.FC = () => {
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Sync to localStorage
-  useEffect(() => {
-    localStorage.setItem('hospital_departments', JSON.stringify(departments));
-    localStorage.setItem('hospital_services', JSON.stringify(services));
-    localStorage.setItem('hospital_resources', JSON.stringify(resources));
-    localStorage.setItem('hospital_feedback', JSON.stringify(feedback));
-    localStorage.setItem('hospital_social_links', JSON.stringify(socialLinks));
-  }, [departments, services, resources, feedback, socialLinks]);
+  // Laravel API Base URL
+  const apiBase = '/api/v1';
 
   useEffect(() => {
-    // Simulate initial data loading to show skeletons
-    const timer = setTimeout(() => {
-      setIsDataLoading(false);
-    }, 1200);
+    const fetchHospitalData = async () => {
+      setIsDataLoading(true);
+      try {
+        const response = await fetch(`${apiBase}/departments`);
+        if (response.ok) {
+          const json = await response.json();
+          if (json.data && json.data.length > 0) {
+            setDepartments(json.data);
+          }
+        }
+      } catch (error) {
+        console.warn('Laravel API offline, using local fallbacks');
+      } finally {
+        setIsDataLoading(false);
+      }
+    };
+
+    fetchHospitalData();
 
     const handleOpenBooking = (event: any) => {
-      if (event.detail) {
-        setBookingInitialData(event.detail);
-      } else {
-        setBookingInitialData(null);
-      }
+      setBookingInitialData(event.detail || null);
       setIsBookingOpen(true);
     };
     window.addEventListener('open-booking', handleOpenBooking);
-    
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('open-booking', handleOpenBooking);
-    };
+    return () => window.removeEventListener('open-booking', handleOpenBooking);
   }, []);
 
   const handleNavigate = (view: string) => {
@@ -129,18 +97,13 @@ const App: React.FC = () => {
       setSelectedDept(null);
       setTimeout(() => {
         const element = document.getElementById(view);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     }
   };
 
   const handleUpdateDepartment = (updatedDept: DetailedDepartment) => {
     setDepartments(prev => prev.map(d => d.id === updatedDept.id ? updatedDept : d));
-    if (selectedDept?.id === updatedDept.id) {
-      setSelectedDept(updatedDept);
-    }
   };
 
   const filteredDepartments = useMemo(() => {
@@ -149,8 +112,19 @@ const App: React.FC = () => {
     );
   }, [searchTerm, departments]);
 
-  const handleAddFeedback = (newFeedback: FeedbackEntry) => {
-    setFeedback(prev => [newFeedback, ...prev]);
+  const handleAddFeedback = async (newFeedback: FeedbackEntry) => {
+    try {
+      const res = await fetch(`${apiBase}/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newFeedback)
+      });
+      if (res.ok) {
+        setFeedback(prev => [newFeedback, ...prev]);
+      }
+    } catch (e) {
+      setFeedback(prev => [newFeedback, ...prev]); // Local fallback
+    }
   };
 
   if (isAdminView) {
@@ -224,41 +198,22 @@ const App: React.FC = () => {
                   Moi Voi <span className="text-teal-400">County Referral Hospital</span>
                 </h1>
                 <p className="text-lg md:text-xl text-slate-300 mb-10 max-w-2xl font-light">
-                  Providing compassionate, accessible, and world-class healthcare to the residents of Voi and the greater Taita Taveta County since 1995.
+                  Serving Taita Taveta with a state-of-the-art database-backed medical portal for efficient patient care.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                   <button 
                     onClick={() => handleNavigate('departments')}
-                    className="bg-teal-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-teal-700 transition-all text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                    className="bg-teal-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-teal-700 transition-all text-center"
                   >
                     Explore Departments
                   </button>
                   <button 
                     onClick={() => handleNavigate('sha')}
-                    className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/20 transition-all text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                    className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/20 transition-all text-center"
                   >
                     SHA Health Cover Info
                   </button>
-                </div>
-
-                <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-4xl">
-                  <div>
-                    <p className="text-3xl font-bold text-teal-400">{departments.length * 20}+</p>
-                    <p className="text-slate-400 text-sm">Bed Capacity</p>
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold text-teal-400">{departments.length}+</p>
-                    <p className="text-slate-400 text-sm">Specialized Clinics</p>
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold text-teal-400">500+</p>
-                    <p className="text-slate-400 text-sm">Daily Outpatients</p>
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold text-teal-400">24/7</p>
-                    <p className="text-slate-400 text-sm">Emergency Service</p>
-                  </div>
                 </div>
               </div>
             </section>
@@ -274,74 +229,12 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* About Us Section */}
-            <section id="about" className="py-24 bg-white overflow-hidden">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                  <div className="relative">
-                    <div className="absolute -top-4 -left-4 w-24 h-24 bg-teal-100 rounded-3xl -z-10 animate-pulse"></div>
-                    <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-slate-100 rounded-3xl -z-10"></div>
-                    <img 
-                      src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800" 
-                      alt="Healthcare Professionals" 
-                      className="rounded-3xl shadow-2xl border-8 border-white relative z-10 w-full object-cover aspect-video md:aspect-square"
-                    />
-                    <div className="absolute bottom-8 left-8 bg-teal-600 text-white p-6 rounded-2xl shadow-xl z-20 hidden md:block">
-                      <p className="text-3xl font-bold mb-1">25+</p>
-                      <p className="text-xs font-semibold uppercase tracking-widest text-teal-100">Years of Excellence</p>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h2 className="text-teal-600 font-bold uppercase tracking-widest text-sm mb-2">Our Legacy</h2>
-                    <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">A History of Compassionate Care in Taita Taveta</h3>
-                    <p className="text-slate-600 mb-8 leading-relaxed">
-                      Moi Voi County Referral Hospital began as a humble medical outpost and has evolved into a premier health facility for the entire Coast region. As a Level 5 facility, we provide specialized services previously only available in major cities.
-                    </p>
-                    
-                    {/* Testimonials Carousel Sub-section */}
-                    <div className="mb-10">
-                      <h4 className="text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-4">Patient Experiences</h4>
-                      <TestimonialCarousel />
-                    </div>
-
-                    <div className="space-y-4 mb-8">
-                      <div className="flex gap-4">
-                        <div className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 flex-shrink-0">
-                          <i className="fa-solid fa-check text-xs"></i>
-                        </div>
-                        <p className="text-sm font-semibold text-slate-800">Advanced diagnostic capabilities and surgical expertise.</p>
-                      </div>
-                      <div className="flex gap-4">
-                        <div className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 flex-shrink-0">
-                          <i className="fa-solid fa-check text-xs"></i>
-                        </div>
-                        <p className="text-sm font-semibold text-slate-800">Patient-centered care with focus on affordability and quality.</p>
-                      </div>
-                      <div className="flex gap-4">
-                        <div className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 flex-shrink-0">
-                          <i className="fa-solid fa-check text-xs"></i>
-                        </div>
-                        <p className="text-sm font-semibold text-slate-800">24/7 emergency response and critical care services.</p>
-                      </div>
-                    </div>
-                    <button className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2">
-                      Read Our Mission <i className="fa-solid fa-chevron-right text-xs"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </section>
-
             {/* Departments Section */}
             <section id="departments" className="py-24 bg-slate-50">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
                   <h2 className="text-teal-600 font-bold uppercase tracking-widest text-sm mb-2">Our Center of Excellence</h2>
                   <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900">Medical Departments</h3>
-                  <p className="mt-4 text-slate-600 max-w-2xl mx-auto">
-                    Specialized medical care delivered by a team of dedicated consultants, doctors, and nurses.
-                  </p>
                 </div>
 
                 {/* Search Bar */}
@@ -351,36 +244,25 @@ const App: React.FC = () => {
                   </div>
                   <input
                     type="text"
-                    placeholder="Search for a department (e.g. 'Maternity', 'Lab')..."
-                    className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400 text-slate-700"
+                    placeholder="Search for a department..."
+                    className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-teal-500 outline-none"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
-                  {searchTerm && (
-                    <button 
-                      onClick={() => setSearchTerm('')}
-                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600"
-                    >
-                      <i className="fa-solid fa-circle-xmark"></i>
-                    </button>
-                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {isDataLoading ? (
                     Array.from({ length: 6 }).map((_, i) => <DepartmentSkeleton key={i} />)
-                  ) : filteredDepartments.length > 0 ? (
+                  ) : (
                     filteredDepartments.map((dept) => (
-                      <div key={dept.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 flex flex-col animate-in fade-in zoom-in duration-300">
+                      <div key={dept.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 flex flex-col">
                         <div className="h-48 overflow-hidden relative">
                           <img 
                             src={dept.image} 
                             alt={dept.name} 
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                           />
-                          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-2 rounded-xl flex items-center gap-2 shadow-sm">
-                            <i className={`fa-solid ${dept.icon} text-teal-600`}></i>
-                          </div>
                         </div>
                         <div className="p-8 flex-1 flex flex-col">
                           <h4 className="text-xl font-bold text-slate-900 mb-3">{dept.name}</h4>
@@ -389,198 +271,53 @@ const App: React.FC = () => {
                           </p>
                           <button 
                             onClick={() => setSelectedDept(dept as DetailedDepartment)}
-                            className="text-teal-600 font-bold text-sm flex items-center gap-2 group-hover:gap-3 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 rounded"
+                            className="text-teal-600 font-bold text-sm flex items-center gap-2 hover:gap-3 transition-all"
                           >
                             Learn More <i className="fa-solid fa-arrow-right"></i>
                           </button>
                         </div>
                       </div>
                     ))
-                  ) : (
-                    <div className="col-span-full py-16 text-center bg-white rounded-3xl border border-dashed border-slate-200 animate-in fade-in duration-300">
-                      <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
-                        <i className="fa-solid fa-folder-open text-3xl"></i>
-                      </div>
-                      <h4 className="text-xl font-bold text-slate-900 mb-2">No departments found</h4>
-                      <p className="text-slate-500">We couldn't find any results matching "{searchTerm}". Please try a different search term.</p>
-                      <button 
-                        onClick={() => setSearchTerm('')}
-                        className="mt-6 text-teal-600 font-bold hover:underline"
-                      >
-                        Clear search filter
-                      </button>
-                    </div>
                   )}
                 </div>
+              </div>
+            </section>
+
+            {/* Testimonials */}
+            <section className="py-24 bg-white">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-16">
+                   <h2 className="text-teal-600 font-bold uppercase tracking-widest text-sm mb-2">Patient Voices</h2>
+                   <h3 className="text-3xl font-black text-slate-900">What the Community Says</h3>
+                </div>
+                <TestimonialCarousel />
               </div>
             </section>
 
             {/* Services Section */}
-            <section id="services" className="py-24 bg-white">
+            <section id="services" className="py-24 bg-slate-50">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-                  <div className="max-w-xl">
-                    <h2 className="text-teal-600 font-bold uppercase tracking-widest text-sm mb-2">Service Portfolio</h2>
-                    <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900">How We Serve Taita Taveta</h3>
-                    <p className="mt-4 text-slate-600">
-                      From critical emergency responses to preventive healthcare clinics, we are committed to the well-being of our community.
-                    </p>
-                  </div>
-                  <a href="#contact" className="bg-white text-teal-600 border-2 border-teal-600 px-6 py-3 rounded-full font-bold hover:bg-teal-600 hover:text-white transition-all whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2">
-                    Download Service Guide
-                  </a>
-                </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {isDataLoading ? (
-                    Array.from({ length: 4 }).map((_, i) => <ServiceSkeleton key={i} />)
-                  ) : (
-                    services.map((service: any) => (
-                      <div key={service.id} className="bg-slate-50 p-8 rounded-3xl shadow-sm border border-slate-100 flex gap-6 hover:shadow-md transition-shadow">
-                        <div className="flex-shrink-0 w-12 h-12 bg-teal-100 rounded-2xl flex items-center justify-center text-teal-600">
-                          <i className="fa-solid fa-check-circle text-xl"></i>
-                        </div>
-                        <div>
-                          <div className="flex justify-between items-start mb-2 flex-wrap gap-2">
-                            <h4 className="text-lg font-bold text-slate-900">{service.title}</h4>
-                            <span className="text-[10px] font-bold uppercase tracking-widest bg-emerald-100 text-emerald-700 px-2 py-1 rounded">
-                              {service.available}
-                            </span>
-                          </div>
-                          <p className="text-slate-600 text-sm leading-relaxed">
-                            {service.description}
-                          </p>
-                        </div>
+                  {services.map((service) => (
+                    <div key={service.id} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex gap-6">
+                      <div className="flex-shrink-0 w-12 h-12 bg-teal-100 rounded-2xl flex items-center justify-center text-teal-600">
+                        <i className="fa-solid fa-check-circle text-xl"></i>
                       </div>
-                    ))
-                  )}
+                      <div>
+                        <h4 className="text-lg font-bold text-slate-900 mb-2">{service.title}</h4>
+                        <p className="text-slate-600 text-sm leading-relaxed">{service.description}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </section>
 
-            {/* Call to Action: Referral Section */}
-            <section className="py-24 bg-teal-600 text-white overflow-hidden relative">
-              <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] bg-teal-500 rounded-full opacity-20"></div>
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-                <h2 className="text-3xl md:text-5xl font-extrabold mb-8 max-w-4xl mx-auto">
-                  Ready to provide the best care for you and your family.
-                </h2>
-                <p className="text-teal-100 text-lg mb-12 max-w-2xl mx-auto">
-                  Our hospital accepts various insurances including SHA (formerly NHIF) and major private providers. We are the primary referral center for the lower Coast region.
-                </p>
-                <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <button 
-                    onClick={() => {
-                      setBookingInitialData(null);
-                      setIsBookingOpen(true);
-                    }}
-                    className="bg-white text-teal-600 px-10 py-4 rounded-xl font-bold text-lg hover:bg-teal-50 transition-all flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal-600"
-                  >
-                    <i className="fa-solid fa-phone"></i> Call Emergency Desk
-                  </button>
-                  <button className="bg-teal-700 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-teal-800 transition-all flex items-center justify-center gap-2 border border-teal-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal-600">
-                    <i className="fa-solid fa-map-location-dot"></i> Get Directions
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            {/* Contact & Feedback Section */}
-            <section id="contact" className="py-24 bg-white">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20">
-                  <div>
-                    <h2 className="text-teal-600 font-bold uppercase tracking-widest text-sm mb-2">Get in Touch</h2>
-                    <h3 className="text-3xl font-extrabold text-slate-900 mb-8">Contact Information</h3>
-                    
-                    <div className="space-y-8">
-                      <div className="flex gap-4">
-                        <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-teal-600 flex-shrink-0">
-                          <i className="fa-solid fa-location-dot text-xl"></i>
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-slate-900">Location</h4>
-                          <p className="text-slate-600 text-sm">Voi Town, Behind the Sub-County Offices, Voi, Taita Taveta County.</p>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-4">
-                        <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-teal-600 flex-shrink-0">
-                          <i className="fa-solid fa-phone-volume text-xl"></i>
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-slate-900">Phone & Mobile</h4>
-                          <p className="text-slate-600 text-sm">+254 712 345 678 (Reception)</p>
-                          <p className="text-slate-600 text-sm">+254 722 000 000 (A&E Emergency)</p>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-4">
-                        <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-teal-600 flex-shrink-0">
-                          <i className="fa-solid fa-envelope text-xl"></i>
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-slate-900">Email Address</h4>
-                          <a href="mailto:info@mvcrh.or.ke" className="text-teal-600 text-sm font-bold hover:underline">info@mvcrh.or.ke</a>
-                          <p className="text-slate-600 text-sm mt-1">records@taitataveta.go.ke</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-12 p-8 bg-teal-50 rounded-3xl border border-teal-100">
-                      <h4 className="font-bold text-teal-900 mb-4 flex items-center gap-2">
-                        <i className="fa-solid fa-clock"></i> Visiting Hours
-                      </h4>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="font-semibold text-teal-800">Morning</p>
-                          <p className="text-teal-600">6:00 AM - 7:30 AM</p>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-teal-800">Noon</p>
-                          <p className="text-teal-600">1:00 PM - 2:00 PM</p>
-                        </div>
-                        <div className="col-span-2">
-                          <p className="font-semibold text-teal-800">Evening</p>
-                          <p className="text-teal-600">4:30 PM - 6:30 PM</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-100 rounded-3xl overflow-hidden min-h-[400px] border border-slate-200 group relative">
-                    <iframe 
-                      title="Moi Voi County Referral Hospital Location"
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15911.75130752538!2d38.56064115!3d-3.39088865!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1838865e90d7973d%3A0xc3124586940e4f3c!2sMoi%20County%20Referral%20Hospital%2C%20Voi!5e0!3m2!1sen!2ske!4v1715421234567!5m2!1sen!2ske" 
-                      width="100%" 
-                      height="100%" 
-                      style={{ border: 0 }} 
-                      allowFullScreen 
-                      loading="lazy" 
-                      referrerPolicy="no-referrer-when-downgrade"
-                      className="absolute inset-0 grayscale contrast-125 opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
-                    ></iframe>
-                    <div className="absolute bottom-6 right-6 z-10">
-                      <a 
-                        href="https://maps.app.goo.gl/t9pA7XG9wz7jMvC68" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="bg-white text-teal-600 px-6 py-3 rounded-full font-bold shadow-xl flex items-center gap-2 hover:bg-teal-600 hover:text-white transition-all transform hover:scale-105"
-                      >
-                        <i className="fa-solid fa-diamond-turn-right"></i> Get Directions
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Dedicated Feedback Form */}
-                <div className="max-w-4xl mx-auto">
-                  <div className="text-center mb-10">
-                    <h3 className="text-2xl font-bold text-slate-900"> We Value Your Feedback</h3>
-                    <p className="text-slate-600 mt-2">Help us serve you better by sharing your experience or suggesting improvements.</p>
-                  </div>
-                  <FeedbackForm onSubmit={handleAddFeedback} />
-                </div>
+            {/* Feedback Form */}
+            <section className="py-24 bg-white">
+              <div className="max-w-4xl mx-auto px-4 text-center">
+                 <h2 className="text-3xl font-black mb-8">Share Your Experience</h2>
+                 <FeedbackForm onSubmit={handleAddFeedback} />
               </div>
             </section>
           </>
@@ -588,109 +325,17 @@ const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
-            <div className="col-span-1 lg:col-span-1">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="h-16 w-16 flex items-center justify-center p-1 bg-white rounded-xl shadow-inner">
-                  <img 
-                    src="logo.png" 
-                    alt="Taita Taveta County Logo" 
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-                <div>
-                  <span className="text-white font-extrabold text-xl block leading-tight tracking-tight">Moi Voi</span>
-                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.15em] block">County Referral Hospital</span>
-                </div>
-              </div>
-              <p className="text-sm leading-relaxed mb-8 text-slate-400">
-                The leading healthcare provider in Taita Taveta County, committed to excellence in medical services and patient care.
-              </p>
-              <div className="flex gap-4">
-                {socialLinks.facebook && (
-                  <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2">
-                    <i className="fa-brands fa-facebook-f text-white text-sm"></i>
-                  </a>
-                )}
-                {socialLinks.twitter && (
-                  <a href={socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-sky-500 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2">
-                    <i className="fa-brands fa-x-twitter text-white text-sm"></i>
-                  </a>
-                )}
-                {socialLinks.instagram && (
-                  <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-pink-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2">
-                    <i className="fa-brands fa-instagram text-white text-sm"></i>
-                  </a>
-                )}
-                {socialLinks.youtube && (
-                  <a href={socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-red-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2">
-                    <i className="fa-brands fa-youtube text-white text-sm"></i>
-                  </a>
-                )}
-                {socialLinks.linkedin && (
-                  <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-700 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2">
-                    <i className="fa-brands fa-linkedin-in text-white text-sm"></i>
-                  </a>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold mb-8 text-sm uppercase tracking-widest">Quick Navigation</h4>
-              <ul className="space-y-4 text-sm">
-                <li><button onClick={() => handleNavigate('home')} className="hover:text-teal-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded px-1">Home Portal</button></li>
-                <li><button onClick={() => handleNavigate('about')} className="hover:text-teal-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded px-1">About Our History</button></li>
-                <li><button onClick={() => handleNavigate('departments')} className="hover:text-teal-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded px-1">Medical Departments</button></li>
-                <li><button onClick={() => handleNavigate('sha')} className="hover:text-teal-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded px-1">SHA Transition Info</button></li>
-                <li><button onClick={() => handleNavigate('resources')} className="hover:text-teal-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded px-1">Public Documents</button></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold mb-8 text-sm uppercase tracking-widest">Specialties</h4>
-              <ul className="space-y-4 text-sm">
-                {departments.slice(0, 5).map(dept => (
-                  <li key={dept.id}>
-                    <button 
-                      onClick={() => setSelectedDept(dept)} 
-                      className="hover:text-teal-400 transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded px-1"
-                    >
-                      {dept.name}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold mb-8 text-sm uppercase tracking-widest">Official Contact</h4>
-              <p className="text-xs mb-6 text-slate-500 font-medium">Official correspondence for the Referral Hospital.</p>
-              <ul className="space-y-5 text-sm">
-                <li><a href="mailto:info@mvcrh.or.ke" className="flex items-center gap-3 hover:text-teal-400 transition-colors"><i className="fa-solid fa-envelope text-teal-600"></i> info@mvcrh.or.ke</a></li>
-                <li><a href="https://sha.go.ke" target="_blank" className="flex items-center gap-3 hover:text-teal-400 transition-colors"><i className="fa-solid fa-shield-heart text-teal-600"></i> SHA Official Website</a></li>
-                <li><a href="https://www.health.go.ke" target="_blank" className="flex items-center gap-3 hover:text-teal-400 transition-colors"><i className="fa-solid fa-building-columns text-teal-600"></i> Ministry of Health</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-10 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] uppercase tracking-[0.2em] font-black text-slate-500">
-            <p>© 2024 Moi Voi County Referral Hospital. Empowering Taita Taveta.</p>
-            <div className="flex gap-8">
-              <button onClick={() => handleNavigate('admin')} className="hover:text-white transition-colors">Staff Access</button>
-              <a href="#" className="hover:text-white transition-colors">Privacy</a>
-              <a href="#" className="hover:text-white transition-colors">Compliance</a>
-            </div>
-            <p className="text-teal-600">Owned by Taita Taveta County Govt</p>
+      <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-xs uppercase tracking-widest font-bold">© 2024 Moi Voi County Referral Hospital</p>
+          <div className="flex justify-center gap-6 mt-6">
+             <button onClick={() => handleNavigate('admin')} className="hover:text-white transition-colors">Admin Dashboard</button>
+             <button onClick={() => handleNavigate('resources')} className="hover:text-white transition-colors">Resources</button>
           </div>
         </div>
       </footer>
 
-      {/* Chat Widget Component */}
       <ChatWidget departments={departments} />
-
-      {/* Booking Modal */}
       <BookingModal 
         isOpen={isBookingOpen} 
         onClose={() => setIsBookingOpen(false)}

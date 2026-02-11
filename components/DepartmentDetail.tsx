@@ -125,7 +125,7 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
     const newGalleryImages: GalleryImage[] = [];
     let processedCount = 0;
 
-    Array.from(files).forEach((file) => {
+    Array.from(files).forEach((file: File) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const result = event.target?.result as string;
@@ -144,7 +144,7 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
           onUpdateDepartment(updatedDepartment);
           setIsUploading(false);
           if (fileInputRef.current) fileInputRef.current.value = '';
-          setCurrentImageIndex(department.galleryImages.length); // Jump to first new image
+          setCurrentImageIndex(department.galleryImages.length); 
         }
       };
       reader.readAsDataURL(file);
@@ -200,7 +200,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
     }
   };
 
-  // Calendar Helpers
   const daysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   const firstDayOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
 
@@ -226,7 +225,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
 
   return (
     <div className="animate-in fade-in duration-500 pb-24">
-      {/* Header / Breadcrumb */}
       <nav aria-label="Breadcrumb" className="bg-slate-100 py-4 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
           <div className="flex items-center gap-4 text-sm font-medium">
@@ -291,7 +289,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
         </div>
       </nav>
 
-      {/* Hero Banner */}
       <section className="group relative h-[450px] md:h-[550px] overflow-hidden" aria-labelledby="dept-hero-heading">
         <img 
           src={department.image} 
@@ -310,7 +307,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
               Providing exceptional {department.name.toLowerCase()} healthcare to the Voi community and beyond.
             </p>
             
-            {/* Quick Actions in Hero */}
             <div className="flex flex-wrap gap-4 pointer-events-auto">
               <a 
                 href="tel:+254712345678"
@@ -338,7 +334,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
         </div>
       </section>
 
-      {/* Main Content */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
           <div className="lg:col-span-2 space-y-16">
@@ -355,7 +350,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
               </button>
             </article>
 
-            {/* Department Gallery Carousel Section */}
             <section aria-labelledby="gallery-heading" className="overflow-hidden">
               <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <h3 id="gallery-heading" className="text-2xl font-bold text-slate-900 flex items-center gap-3">
@@ -417,7 +411,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
                     </div>
                   ))}
                   
-                  {/* Dots Navigation */}
                   <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
                     {department.galleryImages.map((_, idx) => (
                       <button
@@ -470,7 +463,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
               </div>
             </section>
 
-            {/* Upcoming Events Section */}
             <section aria-labelledby="dept-events-heading">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <h3 id="dept-events-heading" className="text-2xl font-bold text-slate-900 flex items-center gap-3">
@@ -626,14 +618,12 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
               )}
             </section>
 
-            {/* Appointment Slots Calendar Section */}
             <section aria-labelledby="dept-slots-heading">
               <h3 id="dept-slots-heading" className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
                 <i className="fa-solid fa-calendar-check text-teal-700" aria-hidden="true"></i> Available Appointment Slots
               </h3>
               
               <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm flex flex-col md:flex-row min-h-[450px]">
-                {/* Calendar View */}
                 <div className="w-full md:w-2/3 p-6 border-r border-slate-100">
                   <div className="flex items-center justify-between mb-6">
                     <h4 className="font-bold text-slate-800 flex items-center gap-2">
@@ -701,7 +691,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
                   </div>
                 </div>
 
-                {/* Time Slots View */}
                 <div className="w-full md:w-1/3 bg-slate-50 p-6 flex flex-col">
                   <h4 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
                     <i className="fa-solid fa-clock text-teal-600"></i>
@@ -756,7 +745,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
               </div>
             </section>
 
-            {/* FAQ Section */}
             {department.faqs && department.faqs.length > 0 && (
               <section aria-labelledby="dept-faqs-heading">
                 <h3 id="dept-faqs-heading" className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
@@ -764,26 +752,45 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
                 </h3>
                 <div className="space-y-4">
                   {department.faqs.map((faq, idx) => (
-                    <div key={idx} className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+                    <div 
+                      key={idx} 
+                      className={`border rounded-3xl overflow-hidden transition-all duration-300 ${
+                        openFaq === idx 
+                        ? 'border-teal-200 bg-white shadow-lg' 
+                        : 'border-slate-200 bg-white shadow-sm'
+                      }`}
+                    >
                       <button 
                         id={`faq-button-${idx}`}
                         onClick={() => toggleFaq(idx)}
-                        className="w-full text-left p-6 flex justify-between items-center hover:bg-slate-50 transition-colors focus:outline-none focus-visible:bg-teal-50 focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-teal-600"
+                        className={`w-full text-left p-6 flex justify-between items-center transition-all focus:outline-none focus-visible:bg-teal-50 focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-teal-600 ${
+                          openFaq === idx ? 'bg-teal-50/30' : 'hover:bg-slate-50'
+                        }`}
                         aria-expanded={openFaq === idx}
                         aria-controls={`faq-content-${idx}`}
                       >
-                        <span className="font-bold text-slate-800 pr-8">{faq.question}</span>
-                        <i className={`fa-solid fa-chevron-down text-slate-400 transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${openFaq === idx ? 'rotate-180' : ''}`} aria-hidden="true"></i>
+                        <span className={`font-bold transition-colors ${openFaq === idx ? 'text-teal-900' : 'text-slate-800'} pr-8`}>
+                          {faq.question}
+                        </span>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500 ${
+                          openFaq === idx ? 'bg-teal-600 text-white rotate-180' : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200'
+                        }`}>
+                          <i className="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+                        </div>
                       </button>
                       <div 
                         id={`faq-content-${idx}`}
                         role="region"
                         aria-labelledby={`faq-button-${idx}`}
-                        className={`grid transition-all duration-300 ease-in-out ${openFaq === idx ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                        className={`grid transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                          openFaq === idx ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                        }`}
                         aria-hidden={openFaq !== idx}
                       >
                         <div className="overflow-hidden">
-                          <div className="p-6 pt-0 text-slate-600 text-sm leading-relaxed border-t border-slate-100 bg-slate-50/50">
+                          <div className={`p-6 pt-0 text-slate-600 text-sm leading-relaxed border-t border-slate-100 bg-slate-50/30 transition-all duration-700 delay-100 ${
+                            openFaq === idx ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+                          }`}>
                             {faq.answer}
                           </div>
                         </div>
@@ -811,7 +818,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
             </div>
           </div>
 
-          {/* Sidebar */}
           <aside className="space-y-8">
             <section className="bg-white border border-slate-200 p-8 rounded-3xl shadow-sm" aria-labelledby="dept-leadership-heading">
               <h4 id="dept-leadership-heading" className="text-lg font-bold text-slate-900 mb-6 pb-4 border-b border-slate-100 uppercase tracking-wide text-sm">Department Leadership</h4>
@@ -851,7 +857,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
         </div>
       </section>
 
-      {/* Explore Other Departments Section */}
       <section className="bg-white py-16 border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
@@ -882,7 +887,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
         </div>
       </section>
 
-      {/* Footer Navigation */}
       <section className="bg-slate-50 py-12 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 flex flex-col items-center gap-8">
           <div className="flex flex-wrap justify-center gap-4">

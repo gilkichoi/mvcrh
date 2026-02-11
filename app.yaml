@@ -1,0 +1,17 @@
+
+runtime: nodejs20
+instance_class: F1
+service: default
+
+handlers:
+  # Static assets
+  - url: /assets
+    static_dir: dist/assets
+  
+  # All other routes point to index.html for React Router
+  - url: /.*
+    static_files: dist/index.html
+    upload: dist/index.html
+
+env_variables:
+  NODE_ENV: "production"

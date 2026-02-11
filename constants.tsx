@@ -1,4 +1,3 @@
-
 import { Department, HospitalService, Resource, FAQ, GalleryImage, DepartmentEvent, DetailedDepartment, SocialLinks } from './types';
 
 export interface Testimonial {
@@ -56,7 +55,7 @@ export const RESOURCES: Resource[] = [
     description: 'The official framework for healthcare delivery and management within Taita Taveta County.',
     fileType: 'PDF',
     fileSize: '2.4 MB',
-    downloadUrl: '#'
+    downloadUrl: 'javascript:void(0)'
   },
   {
     id: 'finance-act-2024',
@@ -65,7 +64,7 @@ export const RESOURCES: Resource[] = [
     description: 'Regulatory document detailing health service fees and budget allocations for the current fiscal year.',
     fileType: 'PDF',
     fileSize: '1.8 MB',
-    downloadUrl: '#'
+    downloadUrl: 'javascript:void(0)'
   },
   {
     id: 'admission-form',
@@ -74,7 +73,7 @@ export const RESOURCES: Resource[] = [
     description: 'Standard form required for all inpatient admissions. Can be filled prior to arrival.',
     fileType: 'DOCX',
     fileSize: '450 KB',
-    downloadUrl: '#'
+    downloadUrl: 'javascript:void(0)'
   },
   {
     id: 'referral-template',
@@ -83,7 +82,7 @@ export const RESOURCES: Resource[] = [
     description: 'Formal template for medical practitioners referring patients to Moi Voi Hospital specialized clinics.',
     fileType: 'PDF',
     fileSize: '1.2 MB',
-    downloadUrl: '#'
+    downloadUrl: 'javascript:void(0)'
   },
   {
     id: 'tender-2024-05',
@@ -92,7 +91,7 @@ export const RESOURCES: Resource[] = [
     description: 'Official tender document for the procurement of modern surgical equipment for the new theater.',
     fileType: 'PDF',
     fileSize: '3.1 MB',
-    downloadUrl: '#'
+    downloadUrl: 'javascript:void(0)'
   },
   {
     id: 'patient-rights',
@@ -101,7 +100,7 @@ export const RESOURCES: Resource[] = [
     description: 'A comprehensive guide explaining your rights while receiving care at our facility.',
     fileType: 'PDF',
     fileSize: '890 KB',
-    downloadUrl: '#'
+    downloadUrl: 'javascript:void(0)'
   },
   {
     id: 'maternity-checklist',
@@ -110,7 +109,7 @@ export const RESOURCES: Resource[] = [
     description: 'Essential items and documentation required for expectant mothers visiting the maternity wing.',
     fileType: 'PDF',
     fileSize: '560 KB',
-    downloadUrl: '#'
+    downloadUrl: 'javascript:void(0)'
   }
 ];
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Resource } from '../types';
 
@@ -27,6 +26,13 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({ resources }) => {
       case 'DOCX': return 'fa-file-word text-blue-500';
       case 'XLSX': return 'fa-file-excel text-emerald-500';
       default: return 'fa-file-lines text-slate-400';
+    }
+  };
+
+  const handleDownload = (e: React.MouseEvent, resource: Resource) => {
+    if (resource.downloadUrl === 'javascript:void(0)') {
+      e.preventDefault();
+      alert(`The document "${resource.title}" is currently being processed for online access. Please visit our Records Office for a physical copy.`);
     }
   };
 
@@ -107,7 +113,8 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({ resources }) => {
                     <a 
                       href={resource.downloadUrl}
                       className="inline-flex items-center gap-2 text-teal-600 font-bold text-sm hover:text-teal-800 transition-colors"
-                      download
+                      onClick={(e) => handleDownload(e, resource)}
+                      download={resource.downloadUrl !== 'javascript:void(0)'}
                     >
                       Download <i className="fa-solid fa-download"></i>
                     </a>
