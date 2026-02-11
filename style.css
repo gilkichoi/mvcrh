@@ -1,0 +1,22 @@
+/*
+Theme Name: Moi Voi Hospital Portal
+Theme URI: http://moivoihospital.go.ke
+Author: Senior Frontend Engineer
+Author URI: http://google.com
+Description: A high-performance, React-powered WordPress theme for Moi Voi County Referral Hospital.
+Version: 1.0.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: moi-voi-hospital
+*/
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+    min-height: 100vh;
+}

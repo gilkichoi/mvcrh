@@ -1,0 +1,9 @@
+{
+  "name": "Moi Voi County Referral Hospital",
+  "description": "A comprehensive healthcare portal for Moi Voi County Referral Hospital in Taita Taveta County, featuring department details, service listings, and an AI-powered health assistant.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
