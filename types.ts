@@ -26,6 +26,13 @@ export interface DepartmentEvent {
   description: string;
 }
 
+export interface ServiceCharterItem {
+  service: string;
+  requirements?: string;
+  charges?: string;
+  time?: string;
+}
+
 export interface DetailedDepartment extends Department {
   longDescription: string;
   subServices: string[];
@@ -33,6 +40,7 @@ export interface DetailedDepartment extends Department {
   faqs?: FAQ[];
   galleryImages: GalleryImage[];
   events?: DepartmentEvent[];
+  serviceCharter?: ServiceCharterItem[];
 }
 
 export interface HospitalService {
@@ -79,4 +87,22 @@ export interface SocialLinks {
   instagram: string;
   linkedin: string;
   youtube: string;
+}
+
+export interface NewsItem {
+  id: number;
+  title: string;
+  date: string;
+  category: string;
+  image: string;
+  description: string;
+}
+
+export interface EventItem {
+  id: number;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  icon: string;
 }

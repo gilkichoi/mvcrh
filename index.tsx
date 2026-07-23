@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.tsx'; // Explicit extension for module loader
+import App from './App'; // Explicit extension for module loader
 
 const rootElement = document.getElementById('root');
 if (rootElement) {

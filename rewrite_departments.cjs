@@ -1,119 +1,22 @@
-import { Department, HospitalService, Resource, FAQ, GalleryImage, DepartmentEvent, DetailedDepartment, SocialLinks } from './types';
+const fs = require('fs');
 
-export interface Testimonial {
-  id: number;
-  name: string;
-  quote: string;
-  rating: number;
-  location: string;
+const constantsPath = './constants.tsx';
+let content = fs.readFileSync(constantsPath, 'utf8');
+
+const opdRegex = /\{\s*id:\s*'opd'[\s\S]*?(?=\s*\{\s*id:\s*'surgery')/;
+const radiologyRegex = /\{\s*id:\s*'radiology'[\s\S]*?(?=\s*\{\s*id:\s*'laboratory')/;
+const laboratoryRegex = /\{\s*id:\s*'laboratory'[\s\S]*?(?=\s*\{\s*id:\s*'pharmacy')/;
+
+let opdMatch = content.match(opdRegex);
+let radiologyMatch = content.match(radiologyRegex);
+let laboratoryMatch = content.match(laboratoryRegex);
+
+if (!opdMatch || !radiologyMatch || !laboratoryMatch) {
+  console.log("Could not find opd, radiology, or laboratory sections.");
+  process.exit(1);
 }
 
-export const SOCIAL_LINKS: SocialLinks = {
-  facebook: 'https://web.facebook.com/p/Moi-County-Referral-Hospital-Voi-100089810477442/',
-  twitter: 'https://twitter.com/moivoihospital',
-  instagram: 'https://instagram.com/moivoihospital',
-  linkedin: 'https://linkedin.com/company/moivoihospital',
-  youtube: 'https://youtube.com/@moivoihospital'
-};
-
-export const TESTIMONIALS: Testimonial[] = [
-  {
-    id: 1,
-    name: "Jane W. Mwakazi",
-    quote: "The maternity team was absolutely amazing. As a first-time mother, I felt safe and cared for throughout my entire stay. Linda Mama covered everything just as promised!",
-    rating: 5,
-    location: "Voi Town"
-  },
-  {
-    id: 2,
-    name: "David O. Juma",
-    quote: "I was impressed by the speed of the Diagnostic Laboratory. I got my results within the hour and the clinicians were very professional in explaining the next steps.",
-    rating: 5,
-    location: "Mwatate"
-  },
-  {
-    id: 3,
-    name: "Mary K. Tole",
-    quote: "The specialized eye clinic is a blessing for our community. I received excellent care for my cataracts and can now see clearly. Asante sana to the surgical team.",
-    rating: 4,
-    location: "Tausa"
-  },
-  {
-    id: 4,
-    name: "Samuel N. Mwangi",
-    quote: "Efficient service at the OPD. The digital record-keeping system meant I didn't have to wait long despite the queue. Truly a level 5 experience.",
-    rating: 5,
-    location: "Maungu"
-  }
-];
-
-export const RESOURCES: Resource[] = [
-  {
-    id: 'health-act-2023',
-    title: 'Taita Taveta Health ACT 2023',
-    category: 'Legislative Acts',
-    description: 'The official framework for healthcare delivery and management within Taita Taveta County.',
-    fileType: 'PDF',
-    fileSize: '2.4 MB',
-    downloadUrl: 'javascript:void(0)'
-  },
-  {
-    id: 'finance-act-2026',
-    title: 'County Finance ACT 2026',
-    category: 'Legislative Acts',
-    description: 'Regulatory document detailing health service fees and budget allocations for the current fiscal year.',
-    fileType: 'PDF',
-    fileSize: '1.8 MB',
-    downloadUrl: 'javascript:void(0)'
-  },
-  {
-    id: 'admission-form',
-    title: 'Patient Admission & Consent Form',
-    category: 'Hospital Forms',
-    description: 'Standard form required for all inpatient admissions. Can be filled prior to arrival.',
-    fileType: 'DOCX',
-    fileSize: '450 KB',
-    downloadUrl: 'javascript:void(0)'
-  },
-  {
-    id: 'referral-template',
-    title: 'Inter-Facility Referral Template',
-    category: 'Hospital Forms',
-    description: 'Formal template for medical practitioners referring patients to Moi Voi Hospital specialized clinics.',
-    fileType: 'PDF',
-    fileSize: '1.2 MB',
-    downloadUrl: 'javascript:void(0)'
-  },
-  {
-    id: 'tender-2026-05',
-    title: 'Supply of Medical Equipment Tender 2026/05',
-    category: 'Finance & Tenders',
-    description: 'Official tender document for the procurement of modern surgical equipment for the new theater.',
-    fileType: 'PDF',
-    fileSize: '3.1 MB',
-    downloadUrl: 'javascript:void(0)'
-  },
-  {
-    id: 'patient-rights',
-    title: 'Patient Bill of Rights & Responsibilities',
-    category: 'Patient Guides',
-    description: 'A comprehensive guide explaining your rights while receiving care at our facility.',
-    fileType: 'PDF',
-    fileSize: '890 KB',
-    downloadUrl: 'javascript:void(0)'
-  },
-  {
-    id: 'maternity-checklist',
-    title: 'Linda Mama Maternity Checklist',
-    category: 'Patient Guides',
-    description: 'Essential items and documentation required for expectant mothers visiting the maternity wing.',
-    fileType: 'PDF',
-    fileSize: '560 KB',
-    downloadUrl: 'javascript:void(0)'
-  }
-];
-
-export const DEPARTMENTS: DetailedDepartment[] = [
+const newDepartments = `export const DEPARTMENTS: DetailedDepartment[] = [
   {
     id: 'mch_fp',
     name: 'MCH/FP Department',
@@ -354,10 +257,10 @@ export const DEPARTMENTS: DetailedDepartment[] = [
       { service: 'Nephrologist Consultation', requirements: 'Record Book, Valid Receipt/NHIF Card', charges: '500/-', time: '10 MINS' },
       { service: 'Haemodialysis Per Session', requirements: 'UECS, Hepatitis B&C, HIV Results, Valid Receipt/NHIF', charges: '6,000/=', time: '4 HOURS' },
       { service: 'Paracentesis', requirements: 'Record Book, Valid Receipt/NHIF Card', charges: '300/=', time: '4 HOURS' },
-      { service: 'Permanent Catheter', requirements: 'Record Book, UEC\'S, Hepatitis B&C, HIV, NHIF Card/Receipt', charges: '20,000/=', time: 'NA' },
-      { service: 'Temporary Catheter', requirements: 'Record Book, UEC\'S, Hepatitis B&C, HIV, NHIF Card/Receipt', charges: '14,000/=', time: 'NA' },
-      { service: 'Catheter Insertion', requirements: 'Record Book, UEC\'S, Hepatitis B&C, HIV Results, Receipt/NHIF Card', charges: '500/=', time: '30 MINS' },
-      { service: 'Catheter Removal', requirements: 'Record Book, UEC\'S Results, Receipt/NHIF Card', charges: '200/=', time: '15 MINS' }
+      { service: 'Permanent Catheter', requirements: 'Record Book, UEC\\'S, Hepatitis B&C, HIV, NHIF Card/Receipt', charges: '20,000/=', time: 'NA' },
+      { service: 'Temporary Catheter', requirements: 'Record Book, UEC\\'S, Hepatitis B&C, HIV, NHIF Card/Receipt', charges: '14,000/=', time: 'NA' },
+      { service: 'Catheter Insertion', requirements: 'Record Book, UEC\\'S, Hepatitis B&C, HIV Results, Receipt/NHIF Card', charges: '500/=', time: '30 MINS' },
+      { service: 'Catheter Removal', requirements: 'Record Book, UEC\\'S Results, Receipt/NHIF Card', charges: '200/=', time: '15 MINS' }
     ]
   },
   {
@@ -376,12 +279,12 @@ export const DEPARTMENTS: DetailedDepartment[] = [
     galleryImages: [],
     serviceCharter: [
       { service: 'Admission', requirements: 'Admission file, Active SHA Cover', charges: '450', time: '10 mins' },
-      { service: 'Lab Investigations', requirements: 'Active SHA Cover, Doctor\'s request form', charges: 'As per investigation', time: '10 mins' },
+      { service: 'Lab Investigations', requirements: 'Active SHA Cover, Doctor\\'s request form', charges: 'As per investigation', time: '10 mins' },
       { service: 'Oxygen Administration', requirements: 'Consent', charges: '150 per hour', time: '5 mins' },
       { service: 'Catheterization', requirements: 'Consent', charges: '300/-', time: '15 mins' },
       { service: 'Hospitalization (Bed)', requirements: 'Active SHA Cover', charges: '500/-', time: '5 mins' },
       { service: 'Meals', requirements: 'Plate, Cup, Spoon', charges: '650/-', time: '10 mins' },
-      { service: 'Blood Transfusion', requirements: 'Doctor\'s Request Form (CGXM)', charges: '600/- per pint', time: '15 mins' },
+      { service: 'Blood Transfusion', requirements: 'Doctor\\'s Request Form (CGXM)', charges: '600/- per pint', time: '15 mins' },
       { service: 'Surgical Operations', requirements: 'Consent, SHA Approval', charges: 'As per operation', time: '15 mins' }
     ]
   },
@@ -446,207 +349,18 @@ export const DEPARTMENTS: DetailedDepartment[] = [
       { service: 'Drug information requests', time: 'Within 10 minutes' }
     ]
   }
-,
-  {
-    id: 'opd',
-    name: 'Outpatient (OPD)',
-    icon: 'fa-user-md',
-    description: 'General consultations, triage, and specialized clinic referrals available daily.',
-    longDescription: 'The Outpatient Department is the gateway to our specialized medical services. We handle general consultations, emergency triage, and referrals to our various specialized clinics. Our efficient queuing system ensures that patients are seen promptly by qualified medical officers and consultants.',
-    image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800',
-    subServices: [
-      'General Medical Consultations',
-      'Specialized Clinic Referrals',
-      'Triage & Basic Emergencies',
-      'Physical Examinations',
-      'Chronic Disease Management'
-    ],
-    headOfDepartment: 'Dr. James Waweru',
-    faqs: [
-      { question: "Do I need an appointment for general consultation?", answer: "No, general OPD services are available on a walk-in basis. However, specialized clinics like ENT or Eye Clinic may require booking." },
-      { question: "What are the registration fees?", answer: "Our registration fees follow the county government guidelines for referral hospitals. Please inquire at the main reception triage desk." },
-      { question: "How long is the average waiting time?", answer: "Wait times vary by volume, but we aim to have patients triaged within 15 minutes and seen by a clinician within 45 minutes." },
-      { question: "Which insurances are accepted at OPD?", answer: "We accept NHIF (National Cover), private insurances like Jubilee, APA, and Britam, and county government staff schemes." }
-    ],
-    galleryImages: [
-      { url: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800', alt: 'Modern hospital waiting area', caption: 'Spacious Waiting Lounge' },
-      { url: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800', alt: 'Clinician examining patient', caption: 'Expert Consultations' },
-      { url: 'https://images.unsplash.com/photo-1505751172107-573225a92701?auto=format&fit=crop&q=80&w=800', alt: 'Hospital reception desk', caption: 'Efficient Triage Desk' },
-      { url: 'https://images.unsplash.com/photo-1581594639580-2db0207865e0?auto=format&fit=crop&q=80&w=800', alt: 'Diagnostic equipment', caption: 'On-site Diagnostics' },
-      { url: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?auto=format&fit=crop&q=80&w=800', alt: 'Medical records section', caption: 'Digital Record Keeping' }
-    ],
-    events: [
-      {
-        title: "Community Diabetes Screening",
-        date: "October 24, 2026",
-        time: "8:00 AM - 2:00 PM",
-        description: "Free blood sugar testing and specialist consultations for the general public."
-      },
-      {
-        title: "Hypertension Awareness Day",
-        date: "October 25, 2026",
-        time: "9:00 AM - 3:00 PM",
-        description: "Blood pressure checks and nutritional advice on managing heart health."
-      }
-    ]
-  },
-  {
-    id: 'radiology',
-    name: 'Radiology & Imaging',
-    icon: 'fa-x-ray',
-    description: 'X-rays, Ultrasound, and CT Scan services to assist in accurate diagnosis.',
-    longDescription: 'The Radiology and Imaging department provides critical diagnostic support to all our clinical departments. We are equipped with modern digital imaging technology to ensure clear, accurate results with minimal radiation exposure to patients.',
-    image: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?auto=format&fit=crop&q=80&w=800',
-    subServices: [
-      'Digital X-Ray',
-      'Obstetric & General Ultrasound',
-      'Computed Tomography (CT Scan)',
-      'Fluoroscopy',
-      'Echocardiography'
-    ],
-    headOfDepartment: 'Dr. Elizabeth Tole',
-    faqs: [
-      { question: "Do I need a doctor's referral for an X-ray?", answer: "Yes, imaging procedures require a request form from a qualified clinician to ensure the correct scan is performed for your condition." },
-      { question: "How long until I get my results?", answer: "X-ray and Ultrasound results are usually ready within 1-2 hours. CT Scan reports may take up to 24 hours depending on complexity." },
-      { question: "Are imaging services available 24/7?", answer: "Emergency X-ray and CT services are available 24/7. Routine Ultrasounds are typically scheduled during day shifts." },
-      { question: "Is radiation from X-rays dangerous?", answer: "We use modern digital equipment that minimizes radiation dose. Our staff follow strict safety protocols to protect patients." }
-    ],
-    galleryImages: [
-      { url: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?auto=format&fit=crop&q=80&w=800', alt: 'Modern CT Scan machine', caption: 'High-Resolution CT' },
-      { url: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800', alt: 'Ultrasound in progress', caption: 'Safe Obstetric Imaging' },
-      { url: 'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?auto=format&fit=crop&q=80&w=800', alt: 'Digital X-ray panel', caption: 'Digital Radiography' },
-      { url: 'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?auto=format&fit=crop&q=80&w=800', alt: 'MRI technician console', caption: 'Advanced Diagnostics' },
-      { url: 'https://images.unsplash.com/photo-1579154273155-9430064b22c7?auto=format&fit=crop&q=80&w=800', alt: 'Interventional radiology tools', caption: 'Specialized Imaging' }
-    ],
-    events: [
-      {
-        title: "Mammography Screening Week",
-        date: "October 14-20, 2026",
-        time: "8:00 AM - 4:00 PM Daily",
-        description: "Breast cancer awareness and discounted screening services for women over 40."
-      },
-      {
-        title: "Radiology Tech Update Seminar",
-        date: "October 30, 2026",
-        time: "2:00 PM - 5:00 PM",
-        description: "Internal professional development session on the latest digital imaging protocols."
-      }
-    ]
-  },
-  {
-    id: 'laboratory',
-    name: 'Diagnostic Laboratory',
-    icon: 'fa-vial',
-    description: 'Full range of medical tests including hematology, biochemistry, and microbiology.',
-    longDescription: 'Our diagnostic laboratory is certified and equipped with automated analyzers to provide rapid and reliable results. We maintain strict quality control standards to ensure clinical accuracy for effective patient management.',
-    image: 'https://images.unsplash.com/photo-1579154273155-9430064b22c7?auto=format&fit=crop&q=80&w=800',
-    subServices: [
-      'Hematology & Blood Transfusion',
-      'Clinical Chemistry',
-      'Microbiology & Parasitology',
-      'Histopathology',
-      'Molecular Diagnostics'
-    ],
-    headOfDepartment: 'Mr. David Mwashigadi',
-    faqs: [
-      { question: "Do I need to fast before a blood test?", answer: "Some tests (like blood sugar or lipid profile) require 8-12 hours of fasting. Your doctor will specify this during your consultation." },
-      { question: "How can I get my lab results?", answer: "Results are sent directly to your treating physician's portal or can be collected at the laboratory desk with your patient ID." },
-      { question: "Is the lab accredited?", answer: "Yes, our laboratory follows national quality standards and undergoes regular external proficiency testing." },
-      { question: "Do you offer DNA or paternity testing?", answer: "We currently offer specialized molecular diagnostics, but paternity testing is usually handled through specific legal channels and referrals." }
-    ],
-    galleryImages: [
-      { url: 'https://images.unsplash.com/photo-1579154273155-9430064b22c7?auto=format&fit=crop&q=80&w=800', alt: 'Automated biochemistry analyzer', caption: 'High-Throughput Testing' },
-      { url: 'https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&q=80&w=800', alt: 'Technician using microscope', caption: 'Expert Microbiology' },
-      { url: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&q=80&w=800', alt: 'Sterile laboratory bench', caption: 'Quality Controlled Lab' },
-      { url: 'https://images.unsplash.com/photo-1511174511135-26a97ccc581c?auto=format&fit=crop&q=80&w=800', alt: 'Blood sample storage', caption: 'Certified Blood Bank' },
-      { url: 'https://images.unsplash.com/photo-1614935151651-0bea6508db6b?auto=format&fit=crop&q=80&w=800', alt: 'PCR machine for molecular tests', caption: 'Molecular Diagnostics' }
-    ],
-    events: [
-      {
-        title: "County Blood Donation Drive",
-        date: "October 18, 2026",
-        time: "9:00 AM - 4:00 PM",
-        description: "Join us at the hospital forecourt to donate blood and save lives. Free testing and refreshments for donors."
-      },
-      {
-        title: "Lab Safety & Quality Workshop",
-        date: "November 05, 2026",
-        time: "10:00 AM - 1:00 PM",
-        description: "Continuous professional development for our lab staff on the latest biosafety protocols."
-      }
-    ]
-  },
-];
+];`;
 
-export const SERVICES: HospitalService[] = [
-  {
-    id: 'emergency',
-    title: '24/7 Accident & Emergency',
-    description: 'Round-the-clock emergency medical attention for critical injuries and acute illnesses.',
-    available: 'Always Open'
-  },
-  {
-    id: 'dental',
-    title: 'Comprehensive Dental Clinic',
-    description: 'Extractions, fillings, root canals, and preventive oral health education.',
-    available: 'Mon - Fri, 8AM - 5PM'
-  },
-  {
-    id: 'eye',
-    title: 'Eye Clinic & Optical Services',
-    description: 'Vision screening, treatment of eye infections, and prescription of corrective lenses.',
-    available: 'Tue & Thu, 8AM - 4PM'
-  },
-  {
-    id: 'mental',
-    title: 'Mental Health & Wellness',
-    description: 'Counseling and psychiatric services for a holistic approach to patient health.',
-    available: 'Mon - Wed, 8AM - 4PM'
-  }
-];
+const before = content.substring(0, content.indexOf('export const DEPARTMENTS: DetailedDepartment[] = ['));
+const after = content.substring(content.indexOf('export const SERVICES: HospitalService[] = ['));
 
-export const NEWS: import('./types').NewsItem[] = [
-  {
-    id: 1,
-    title: "New Digital X-Ray Machine Installed",
-    date: "Oct 10, 2026",
-    category: "Facility Upgrade",
-    image: "https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?auto=format&fit=crop&q=80&w=400",
-    description: "The Radiology department has received a state-of-the-art digital X-ray machine."
-  },
-  {
-    id: 2,
-    title: "Free Breast Cancer Screening",
-    date: "Oct 14, 2026",
-    category: "Health Campaign",
-    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=400",
-    description: "In observation of Breast Cancer Awareness Month, we are offering free screening."
-  }
-];
+const newContent = before + newDepartments + '\n\n' +
+opdMatch[0] + ',\n  ' + radiologyMatch[0] + ',\n  ' + laboratoryMatch[0] + '\n];\n\n' + after;
 
-export const EVENTS: import('./types').EventItem[] = [
-  {
-    id: 1,
-    title: "Community Blood Drive",
-    date: "Oct 25, 2026",
-    time: "09:00 AM - 04:00 PM",
-    location: "Main Hospital Grounds",
-    icon: "fa-droplet"
-  },
-  {
-    id: 2,
-    title: "Maternal Health Workshop",
-    date: "Nov 02, 2026",
-    time: "10:00 AM - 12:00 PM",
-    location: "Conference Hall A",
-    icon: "fa-person-breastfeeding"
-  },
-  {
-    id: 3,
-    title: "Free Eye Checkup Camp",
-    date: "Nov 15, 2026",
-    time: "08:00 AM - 05:00 PM",
-    location: "Outpatient Clinic",
-    icon: "fa-eye"
-  }
-];
+// Wait, the newDepartments already has the array close tag `];`
+// So I should replace `];` in newDepartments with `,` and append OPD, radiology, lab.
+const modifiedNewDepartments = newDepartments.replace('];', '');
+const finalContent = before + modifiedNewDepartments + ',\n  ' + opdMatch[0] + ',\n  ' + radiologyMatch[0] + ',\n  ' + laboratoryMatch[0] + '\n];\n\n' + after;
+
+fs.writeFileSync(constantsPath, finalContent);
+console.log('Successfully updated constants.tsx');

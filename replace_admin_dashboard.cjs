@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { DetailedDepartment, HospitalService, Resource, FeedbackEntry, SocialLinks, NewsItem, EventItem } from '../types';
+const fs = require('fs');
+
+const code = `import React, { useState } from 'react';
+import { DetailedDepartment, HospitalService, Resource, FeedbackEntry, SocialLinks } from '../types';
 
 interface AdminDashboardProps {
   isLoggedIn: boolean;
@@ -14,10 +16,6 @@ interface AdminDashboardProps {
   setFeedback: React.Dispatch<React.SetStateAction<FeedbackEntry[]>>;
   socialLinks: SocialLinks;
   setSocialLinks: React.Dispatch<React.SetStateAction<SocialLinks>>;
-  newsItems: NewsItem[];
-  setNewsItems: React.Dispatch<React.SetStateAction<NewsItem[]>>;
-  eventItems: EventItem[];
-  setEventItems: React.Dispatch<React.SetStateAction<EventItem[]>>;
   onExit: () => void;
 }
 
@@ -34,13 +32,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   setFeedback,
   socialLinks,
   setSocialLinks,
-  newsItems,
-  setNewsItems,
-  eventItems,
-  setEventItems,
   onExit
 }) => {
-  const [activeTab, setActiveTab] = useState<'departments' | 'services' | 'resources' | 'feedback' | 'settings' | 'news' | 'events'>('departments');
+  const [activeTab, setActiveTab] = useState<'departments' | 'services' | 'resources' | 'feedback' | 'settings'>('departments');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -88,8 +82,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
       image: formData.get('image') as string,
       subServices: editingDept?.subServices || [],
       galleryImages: editingDept?.galleryImages || [],
-      serviceCharter: editingDept?.serviceCharter || [],
-      events: editingDept?.events || []
+      serviceCharter: editingDept?.serviceCharter || []
     };
 
     if (editingDept) {
@@ -213,8 +206,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const navItems = [
     { id: 'departments', icon: 'fa-building', label: 'Departments' },
     { id: 'services', icon: 'fa-stethoscope', label: 'Services' },
-    { id: 'news', icon: 'fa-newspaper', label: 'News' },
-    { id: 'events', icon: 'fa-calendar-days', label: 'Events' },
     { id: 'resources', icon: 'fa-file-lines', label: 'Documents' },
     { id: 'feedback', icon: 'fa-comments', label: 'Feedback', badge: feedback.filter(f => f.status === 'new').length || null },
     { id: 'settings', icon: 'fa-gear', label: 'Settings' }
@@ -241,14 +232,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id as any)}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
+              className={\`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all \${
                 activeTab === item.id 
                 ? 'bg-teal-600 text-white shadow-lg' 
                 : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-              }`}
+              }\`}
             >
               <div className="flex items-center gap-3">
-                <i className={`fa-solid ${item.icon} w-5`}></i>
+                <i className={\`fa-solid \${item.icon} w-5\`}></i>
                 <span className="text-sm font-bold">{item.label}</span>
               </div>
               {item.badge ? (
@@ -321,7 +312,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <i className={`fa-solid ${dept.icon} text-teal-600`}></i>
+                          <i className={\`fa-solid \${dept.icon} text-teal-600\`}></i>
                         </td>
                         <td className="px-6 py-4 max-w-xs">
                           <p className="text-xs text-slate-500 truncate">{dept.description}</p>
@@ -482,7 +473,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {feedback.map(item => (
-                      <tr key={item.id} className={`hover:bg-slate-50/50 transition-colors ${item.status === 'new' ? 'bg-teal-50/20' : ''}`}>
+                      <tr key={item.id} className={\`hover:bg-slate-50/50 transition-colors \${item.status === 'new' ? 'bg-teal-50/20' : ''}\`}>
                         <td className="px-6 py-4">
                           <div>
                             <p className="font-bold text-slate-900 text-sm">{item.name}</p>
@@ -501,9 +492,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded ${
+                          <span className={\`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded \${
                             item.status === 'new' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'
-                          }`}>
+                          }\`}>
                             {item.status}
                           </span>
                         </td>
@@ -654,95 +645,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Image URL</label>
                 <input name="image" defaultValue={editingDept?.image} required className="w-full px-4 py-2 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-teal-500" />
               </div>
-              
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Gallery Images</label>
-                <div className="space-y-3">
-                  {(editingDept?.galleryImages || []).map((img, i) => (
-                    <div key={i} className="flex gap-2 items-start border border-slate-200 p-2 rounded-lg bg-slate-50">
-                      <div className="flex-1 space-y-2">
-                        <input type="text" value={img.url} onChange={(e) => {
-                          const newImages = [...(editingDept?.galleryImages || [])];
-                          newImages[i].url = e.target.value;
-                          setEditingDept({...editingDept, galleryImages: newImages} as any);
-                        }} placeholder="Image URL" className="w-full px-2 py-1 border rounded text-sm" />
-                        <div className="flex gap-2">
-                          <input type="text" value={img.caption} onChange={(e) => {
-                            const newImages = [...(editingDept?.galleryImages || [])];
-                            newImages[i].caption = e.target.value;
-                            setEditingDept({...editingDept, galleryImages: newImages} as any);
-                          }} placeholder="Caption" className="w-full px-2 py-1 border rounded text-sm" />
-                          <input type="text" value={img.alt} onChange={(e) => {
-                            const newImages = [...(editingDept?.galleryImages || [])];
-                            newImages[i].alt = e.target.value;
-                            setEditingDept({...editingDept, galleryImages: newImages} as any);
-                          }} placeholder="Alt text" className="w-full px-2 py-1 border rounded text-sm" />
-                        </div>
-                      </div>
-                      <button type="button" onClick={() => {
-                        const newImages = [...(editingDept?.galleryImages || [])];
-                        newImages.splice(i, 1);
-                        setEditingDept({...editingDept, galleryImages: newImages} as any);
-                      }} className="text-red-500 hover:bg-red-100 p-1 rounded">
-                        <i className="fa-solid fa-trash"></i>
-                      </button>
-                    </div>
-                  ))}
-                  <button type="button" onClick={() => {
-                    const newImages = [...(editingDept?.galleryImages || []), { url: '', caption: '', alt: '' }];
-                    setEditingDept({...editingDept, galleryImages: newImages} as any);
-                  }} className="text-teal-600 text-sm font-bold flex items-center gap-1">
-                    <i className="fa-solid fa-plus"></i> Add Gallery Image
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Department Events</label>
-                <div className="space-y-3">
-                  {(editingDept?.events || []).map((ev, i) => (
-                    <div key={i} className="flex gap-2 items-start border border-slate-200 p-2 rounded-lg bg-slate-50">
-                      <div className="flex-1 space-y-2">
-                        <input type="text" value={ev.title} onChange={(e) => {
-                          const newEvents = [...(editingDept?.events || [])];
-                          newEvents[i].title = e.target.value;
-                          setEditingDept({...editingDept, events: newEvents} as any);
-                        }} placeholder="Event Title" className="w-full px-2 py-1 border rounded text-sm" />
-                        <div className="flex gap-2">
-                          <input type="text" value={ev.date} onChange={(e) => {
-                            const newEvents = [...(editingDept?.events || [])];
-                            newEvents[i].date = e.target.value;
-                            setEditingDept({...editingDept, events: newEvents} as any);
-                          }} placeholder="Date" className="w-full px-2 py-1 border rounded text-sm" />
-                          <input type="text" value={ev.time} onChange={(e) => {
-                            const newEvents = [...(editingDept?.events || [])];
-                            newEvents[i].time = e.target.value;
-                            setEditingDept({...editingDept, events: newEvents} as any);
-                          }} placeholder="Time" className="w-full px-2 py-1 border rounded text-sm" />
-                        </div>
-                        <textarea value={ev.description} onChange={(e) => {
-                          const newEvents = [...(editingDept?.events || [])];
-                          newEvents[i].description = e.target.value;
-                          setEditingDept({...editingDept, events: newEvents} as any);
-                        }} placeholder="Description" className="w-full px-2 py-1 border rounded text-sm resize-none" rows={2} />
-                      </div>
-                      <button type="button" onClick={() => {
-                        const newEvents = [...(editingDept?.events || [])];
-                        newEvents.splice(i, 1);
-                        setEditingDept({...editingDept, events: newEvents} as any);
-                      }} className="text-red-500 hover:bg-red-100 p-1 rounded">
-                        <i className="fa-solid fa-trash"></i>
-                      </button>
-                    </div>
-                  ))}
-                  <button type="button" onClick={() => {
-                    const newEvents = [...(editingDept?.events || []), { title: '', date: '', time: '', description: '' }];
-                    setEditingDept({...editingDept, events: newEvents} as any);
-                  }} className="text-teal-600 text-sm font-bold flex items-center gap-1">
-                    <i className="fa-solid fa-plus"></i> Add Event
-                  </button>
-                </div>
-              </div>
               <button type="submit" className="w-full bg-teal-600 text-white font-bold py-3 rounded-xl mt-4 hover:bg-teal-700">Save Department</button>
             </form>
           </div>
@@ -836,3 +738,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 };
 
 export default AdminDashboard;
+`;
+fs.writeFileSync('components/AdminDashboard.tsx', code);
+console.log('Successfully replaced AdminDashboard.tsx');

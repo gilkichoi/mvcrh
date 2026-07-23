@@ -23,18 +23,13 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [localEvents, setLocalEvents] = useState<DepartmentEvent[]>(department.events || []);
-  const [showEventForm, setShowEventForm] = useState(false);
+  
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [expandedEvents, setExpandedEvents] = useState<Set<number>>(new Set());
   const [isUploading, setIsUploading] = useState(false);
-  const [newEvent, setNewEvent] = useState<DepartmentEvent>({
-    title: '',
-    date: '',
-    time: '',
-    description: ''
-  });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmittingEvent, setIsSubmittingEvent] = useState(false);
+  
+  
+  
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -48,8 +43,8 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setLocalEvents(department.events || []);
-    setShowEventForm(false);
-    setErrors({});
+    
+    
     setCurrentImageIndex(0);
     setSelectedDate(null);
     setSelectedTime(null);
@@ -85,37 +80,6 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
     'Medication Counseling',
     'Specialized Clinic Referrals'
   ];
-
-  const validateEventForm = (): boolean => {
-    const newErrors: FormErrors = {};
-    if (!newEvent.title.trim()) newErrors.title = 'Event title is required';
-    else if (newEvent.title.length < 5) newErrors.title = 'Title must be at least 5 characters';
-
-    if (!newEvent.date.trim()) newErrors.date = 'Date is required';
-    if (!newEvent.time.trim()) newErrors.time = 'Time is required';
-    
-    if (!newEvent.description.trim()) newErrors.description = 'Description is required';
-    else if (newEvent.description.length < 10) newErrors.description = 'Description must be at least 10 characters';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleAddEvent = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateEventForm()) {
-      setIsSubmittingEvent(true);
-      setTimeout(() => {
-        const updatedEvents = [newEvent, ...localEvents];
-        setLocalEvents(updatedEvents);
-        onUpdateDepartment({ ...department, events: updatedEvents });
-        setNewEvent({ title: '', date: '', time: '', description: '' });
-        setShowEventForm(false);
-        setIsSubmittingEvent(false);
-        setErrors({});
-      }, 800);
-    }
-  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -356,38 +320,24 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
                   <i className="fa-solid fa-images text-teal-700" aria-hidden="true"></i> Facilities & Excellence
                 </h3>
                 <div className="flex items-center gap-3">
-                  <input 
-                    type="file" 
-                    multiple 
-                    accept="image/*" 
-                    className="hidden" 
-                    ref={fileInputRef}
-                    onChange={handleFileUpload}
-                  />
-                  <button 
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                    className="inline-flex items-center gap-2 bg-teal-50 text-teal-700 border border-teal-200 px-4 py-2 rounded-xl font-bold text-xs hover:bg-teal-600 hover:text-white transition-all shadow-sm disabled:bg-slate-100 disabled:text-slate-400"
-                  >
-                    {isUploading ? <i className="fa-solid fa-spinner animate-spin"></i> : <i className="fa-solid fa-cloud-arrow-up"></i>}
-                    Upload Photo
-                  </button>
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={prevImage}
-                      className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-teal-600 hover:text-white hover:border-teal-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
-                      aria-label="Previous image"
-                    >
-                      <i className="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button 
-                      onClick={nextImage}
-                      className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-teal-600 hover:text-white hover:border-teal-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
-                      aria-label="Next image"
-                    >
-                      <i className="fa-solid fa-chevron-right"></i>
-                    </button>
-                  </div>
+                  
+<div className="flex gap-2">
+  <button 
+    onClick={prevImage}
+    className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-teal-600 hover:text-white hover:border-teal-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+    aria-label="Previous image"
+  >
+    <i className="fa-solid fa-chevron-left"></i>
+  </button>
+  <button 
+    onClick={nextImage}
+    className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-teal-600 hover:text-white hover:border-teal-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+    aria-label="Next image"
+  >
+    <i className="fa-solid fa-chevron-right"></i>
+  </button>
+</div>
+
                 </div>
               </div>
 
@@ -425,13 +375,7 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
               ) : (
                 <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl aspect-[16/9] md:aspect-[21/9] flex flex-col items-center justify-center text-slate-400 gap-4">
                   <i className="fa-solid fa-image text-5xl opacity-20"></i>
-                  <p className="font-medium">No gallery images yet. Start by uploading some.</p>
-                  <button 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="bg-teal-600 text-white px-6 py-2 rounded-xl font-bold text-sm shadow-md hover:bg-teal-700 transition-all"
-                  >
-                    Upload first photo
-                  </button>
+                  <p className="font-medium">No gallery images available.</p>
                 </div>
               )}
             </section>
@@ -463,94 +407,42 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
               </div>
             </section>
 
+            {department.serviceCharter && department.serviceCharter.length > 0 && (
+              <section aria-labelledby="dept-service-charter-heading" className="mt-12">
+                <h3 id="dept-service-charter-heading" className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+                  <i className="fa-solid fa-clipboard-list text-teal-700" aria-hidden="true"></i> Service Charter
+                </h3>
+                <div className="overflow-x-auto bg-white rounded-2xl shadow-sm border border-slate-200">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-700 uppercase tracking-wider text-xs font-bold border-b border-slate-200">
+                        <th className="p-4 px-6">Service</th>
+                        <th className="p-4 px-6">Requirements</th>
+                        <th className="p-4 px-6">Charges</th>
+                        <th className="p-4 px-6">Waiting Time</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
+                      {department.serviceCharter.map((item, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                          <td className="p-4 px-6 font-semibold">{item.service}</td>
+                          <td className="p-4 px-6 whitespace-pre-wrap">{item.requirements || '-'}</td>
+                          <td className="p-4 px-6 font-medium text-teal-700">{item.charges || '-'}</td>
+                          <td className="p-4 px-6 text-slate-500">{item.time || '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )}
+
             <section aria-labelledby="dept-events-heading">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <h3 id="dept-events-heading" className="text-2xl font-bold text-slate-900 flex items-center gap-3">
                   <i className="fa-solid fa-calendar-day text-teal-700" aria-hidden="true"></i> Upcoming Events & Specialized Clinics
                 </h3>
-                <button 
-                  onClick={() => setShowEventForm(!showEventForm)}
-                  className="inline-flex items-center justify-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
-                >
-                  <i className={`fa-solid ${showEventForm ? 'fa-minus' : 'fa-plus'}`}></i> {showEventForm ? 'Cancel' : 'Add New Event'}
-                </button>
               </div>
-
-              {showEventForm && (
-                <div className="mb-12 bg-slate-100 border border-slate-200 p-8 rounded-3xl animate-in slide-in-from-top-4 duration-300">
-                  <h4 className="font-bold text-slate-900 mb-6 flex items-center gap-2">
-                    <i className="fa-solid fa-pen-nib text-teal-600"></i> Event Submission Form
-                  </h4>
-                  <form onSubmit={handleAddEvent} className="space-y-4">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Event Title</label>
-                      <input 
-                        type="text"
-                        placeholder="e.g. Free Eye Screening Camp"
-                        value={newEvent.title}
-                        onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
-                        className={`w-full px-4 py-3 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-teal-500 transition-all text-sm ${errors.title ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
-                      />
-                      {errors.title && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.title}</p>}
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Date</label>
-                        <input 
-                          type="text"
-                          placeholder="e.g. October 24, 2024"
-                          value={newEvent.date}
-                          onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
-                          className={`w-full px-4 py-3 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-teal-500 transition-all text-sm ${errors.date ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
-                        />
-                        {errors.date && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.date}</p>}
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Time</label>
-                        <input 
-                          type="text"
-                          placeholder="e.g. 8:00 AM - 2:00 PM"
-                          value={newEvent.time}
-                          onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
-                          className={`w-full px-4 py-3 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-teal-500 transition-all text-sm ${errors.time ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
-                        />
-                        {errors.time && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.time}</p>}
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Brief Description</label>
-                      <textarea 
-                        rows={3}
-                        placeholder="Provide details about the event purpose and any requirements for participants."
-                        value={newEvent.description}
-                        onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
-                        className={`w-full px-4 py-3 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-teal-500 transition-all text-sm resize-none ${errors.description ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
-                      />
-                      {errors.description && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.description}</p>}
-                    </div>
-
-                    <div className="flex justify-end gap-3 pt-4">
-                      <button 
-                        type="button"
-                        onClick={() => { setShowEventForm(false); setErrors({}); }}
-                        className="px-6 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:bg-slate-200 transition-all"
-                      >
-                        Cancel
-                      </button>
-                      <button 
-                        type="submit"
-                        disabled={isSubmittingEvent}
-                        className="bg-teal-600 text-white px-8 py-2.5 rounded-xl font-bold text-xs hover:bg-teal-700 transition-all shadow-md flex items-center gap-2 disabled:bg-slate-400"
-                      >
-                        {isSubmittingEvent ? <i className="fa-solid fa-spinner animate-spin"></i> : <i className="fa-solid fa-paper-plane"></i>}
-                        Publish Event
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              )}
 
               {localEvents.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -608,12 +500,7 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack,
                 <div className="text-center py-12 bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl">
                   <i className="fa-solid fa-calendar-xmark text-slate-300 text-4xl mb-4"></i>
                   <p className="text-slate-500 font-medium">No events currently scheduled for this department.</p>
-                  <button 
-                    onClick={() => setShowEventForm(true)}
-                    className="mt-4 text-teal-600 font-bold text-sm underline hover:text-teal-800"
-                  >
-                    Add the first event
-                  </button>
+                  
                 </div>
               )}
             </section>

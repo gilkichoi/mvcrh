@@ -32,6 +32,9 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, isLoggedIn, onAdminClick, d
     { name: 'About Us', id: 'about' },
     { name: 'Departments', id: 'departments' },
     { name: 'Services', id: 'services' },
+    { name: 'News', id: 'news' },
+    { name: 'Campus Map', id: 'campus-map' },
+    { name: 'Health Blog', id: 'blog' },
     { name: 'SHA Info', id: 'sha' },
     { name: 'Resources', id: 'resources' },
     { name: 'Contact', id: 'contact' },
@@ -50,7 +53,10 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, isLoggedIn, onAdminClick, d
       <div className="bg-slate-900 text-white py-2 hidden sm:block">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
           <div className="flex items-center gap-6">
-            <span className="flex items-center gap-2"><i className="fa-solid fa-phone text-teal-400"></i> Emergency: +254 722 000 000</span>
+            <a href="tel:+254432030746" className="flex items-center gap-2 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-full transition-all border border-red-500/30">
+              <i className="fa-solid fa-phone animate-pulse"></i> 
+              Emergency: +254 43 203 0746
+            </a>
             <span className="flex items-center gap-2"><i className="fa-solid fa-envelope text-teal-400"></i> info@mvcrh.or.ke</span>
           </div>
           <div className="flex items-center gap-4">
