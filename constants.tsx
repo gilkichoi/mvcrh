@@ -611,16 +611,41 @@ export const NEWS: import('./types').NewsItem[] = [
     title: "New Digital X-Ray Machine Installed",
     date: "Oct 10, 2026",
     category: "Facility Upgrade",
-    image: "https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?auto=format&fit=crop&q=80&w=400",
-    description: "The Radiology department has received a state-of-the-art digital X-ray machine."
+    department: "Radiology & Imaging",
+    image: "https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?auto=format&fit=crop&q=80&w=600",
+    description: "The Radiology department has received a state-of-the-art digital X-ray machine, reducing wait times and providing clearer imaging for better diagnosis.",
+    content: "Moi Voi County Referral Hospital has officially commissioned a new digital radiography suite in the Radiology Department. The equipment will significantly shorten diagnosis turnaround time, lower radiation doses, and enable high-definition digital archives.",
+    gallery: [
+      { url: "https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?auto=format&fit=crop&q=80&w=600", caption: "Installation phase in Radiology", alt: "X-Ray Equipment" },
+      { url: "https://images.unsplash.com/photo-1579154273155-9430064b22c7?auto=format&fit=crop&q=80&w=600", caption: "Technicians testing digital calibration", alt: "Calibrating equipment" }
+    ],
+    archived: false
   },
   {
     id: 2,
-    title: "Free Breast Cancer Screening",
+    title: "Free Breast Cancer Screening Campaign",
     date: "Oct 14, 2026",
     category: "Health Campaign",
-    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=400",
-    description: "In observation of Breast Cancer Awareness Month, we are offering free screening."
+    department: "Outpatient (OPD)",
+    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=600",
+    description: "In observation of Breast Cancer Awareness Month, we are offering free screening and subsidized mammography services for all women.",
+    content: "Our clinical oncology and OPD teams are hosting a month-long breast health clinic. Services include free clinical breast exams, self-examination training, and subsidized mammogram scans for eligible women.",
+    gallery: [
+      { url: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=600", caption: "Clinical team conducting consultations", alt: "Screening Session" }
+    ],
+    archived: false
+  },
+  {
+    id: 3,
+    title: "SHA Registration & Onboarding Drive",
+    date: "Oct 20, 2026",
+    category: "Important Update",
+    department: "Administration",
+    image: "https://images.unsplash.com/photo-1505751172107-573225a92701?auto=format&fit=crop&q=80&w=600",
+    description: "Our customer care staff will be assisting patients to register for the new Social Health Authority (SHA) health cover at main reception.",
+    content: "To ensure seamless healthcare access under Kenya's universal health coverage transition, Moi Voi Hospital has set up dedicated SHA registration desks at the main entrance and OPD wing. Patients can dial *147# or register with our support staff.",
+    gallery: [],
+    archived: false
   }
 ];
 
@@ -631,22 +656,39 @@ export const EVENTS: import('./types').EventItem[] = [
     date: "Oct 25, 2026",
     time: "09:00 AM - 04:00 PM",
     location: "Main Hospital Grounds",
-    icon: "fa-droplet"
+    department: "Diagnostic Laboratory",
+    icon: "fa-droplet",
+    image: "https://images.unsplash.com/photo-1615461066841-6116e61058f4?auto=format&fit=crop&q=80&w=600",
+    description: "Join our blood bank team at the forecourt to donate blood. Free health screening, blood group typing, and refreshments will be provided to all donors.",
+    gallery: [
+      { url: "https://images.unsplash.com/photo-1579154273155-9430064b22c7?auto=format&fit=crop&q=80&w=600", caption: "Blood donation station setup", alt: "Blood drive" }
+    ],
+    archived: false
   },
   {
     id: 2,
-    title: "Maternal Health Workshop",
+    title: "Maternal & Newborn Health Workshop",
     date: "Nov 02, 2026",
     time: "10:00 AM - 12:00 PM",
     location: "Conference Hall A",
-    icon: "fa-person-breastfeeding"
+    department: "MCH/FP Department",
+    icon: "fa-person-breastfeeding",
+    image: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=600",
+    description: "An interactive educational session for expectant mothers covering antenatal nutrition, birth planning, infant care, and Linda Mama benefits.",
+    gallery: [],
+    archived: false
   },
   {
     id: 3,
-    title: "Free Eye Checkup Camp",
+    title: "Free Eye Checkup & Cataract Camp",
     date: "Nov 15, 2026",
     time: "08:00 AM - 05:00 PM",
-    location: "Outpatient Clinic",
-    icon: "fa-eye"
+    location: "Outpatient Eye Clinic",
+    department: "Outpatient (OPD)",
+    icon: "fa-eye",
+    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=600",
+    description: "Specialist ophthalmic surgeons will provide free eye examinations, glaucoma screening, and subsidized cataract surgery evaluations.",
+    gallery: [],
+    archived: false
   }
 ];

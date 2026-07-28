@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import BookingModal from './BookingModal';
 import { DetailedDepartment, SocialLinks } from '../types';
+import { useLanguage } from '../LanguageContext';
 
 declare global {
   interface Window {
@@ -23,21 +24,22 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ onNavigate, isLoggedIn, onAdminClick, departments, socialLinks }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const { language, toggleLanguage, t } = useLanguage();
 
   // Safely get theme URL
   const themeUrl = window.wpData?.template_url || '';
 
   const navLinks = [
-    { name: 'Home', id: 'home' },
-    { name: 'About Us', id: 'about' },
-    { name: 'Departments', id: 'departments' },
-    { name: 'Services', id: 'services' },
-    { name: 'News', id: 'news' },
-    { name: 'Campus Map', id: 'campus-map' },
-    { name: 'Health Blog', id: 'blog' },
-    { name: 'SHA Info', id: 'sha' },
-    { name: 'Resources', id: 'resources' },
-    { name: 'Contact', id: 'contact' },
+    { name: t('nav.home', 'Home'), id: 'home' },
+    { name: t('nav.about', 'About Us'), id: 'about' },
+    { name: t('nav.departments', 'Departments'), id: 'departments' },
+    { name: t('nav.services', 'Services'), id: 'services' },
+    { name: t('nav.news', 'News'), id: 'news' },
+    { name: t('nav.campusMap', 'Campus Map'), id: 'campus-map' },
+    { name: t('nav.healthBlog', 'Health Blog'), id: 'blog' },
+    { name: t('nav.shaInfo', 'SHA Info'), id: 'sha' },
+    { name: t('nav.resources', 'Resources'), id: 'resources' },
+    { name: t('nav.contact', 'Contact'), id: 'contact' },
   ];
 
   const handleLinkClick = (id: string) => {
@@ -55,12 +57,22 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, isLoggedIn, onAdminClick, d
           <div className="flex items-center gap-6">
             <a href="tel:+254432030746" className="flex items-center gap-2 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-full transition-all border border-red-500/30">
               <i className="fa-solid fa-phone animate-pulse"></i> 
-              Emergency: +254 43 203 0746
+              {t('nav.emergency', 'Emergency: +254 43 203 0746')}
             </a>
             <span className="flex items-center gap-2"><i className="fa-solid fa-envelope text-teal-400"></i> info@mvcrh.or.ke</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-slate-400 mr-2">Connect:</span>
+            <button 
+              onClick={toggleLanguage}
+              className="flex items-center gap-2 text-teal-400 hover:text-white transition-all mr-4 bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded-full border border-slate-700 hover:border-teal-400 text-xs font-bold"
+              title={language === 'EN' ? 'Badilisha kuwa Kiswahili' : 'Switch to English'}
+            >
+              <i className="fa-solid fa-globe text-teal-400"></i>
+              <span className={language === 'EN' ? 'text-teal-300 font-extrabold underline' : 'text-slate-400'}>EN</span>
+              <span className="text-slate-600">/</span>
+              <span className={language === 'SW' ? 'text-teal-300 font-extrabold underline' : 'text-slate-400'}>SW</span>
+            </button>
+            <span className="text-slate-400 mr-2">{t('nav.connect', 'Connect:')}</span>
             <div className="flex gap-3">
               {socialLinks.facebook && <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-teal-400 transition-colors"><i className="fa-brands fa-facebook-f"></i></a>}
               {socialLinks.twitter && <a href={socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="hover:text-teal-400 transition-colors"><i className="fa-brands fa-x-twitter"></i></a>}
@@ -93,14 +105,14 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, isLoggedIn, onAdminClick, d
                 </div>
                 <div className="hidden xs:block">
                   <span className="text-teal-900 font-extrabold text-xl block leading-tight tracking-tight">Moi Voi</span>
-                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.15em] block">County Referral Hospital</span>
+                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.15em] block">{t('common.countyReferralHospital', 'County Referral Hospital')}</span>
                 </div>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-6">
               {navLinks.map((link) => (
                 <button
-                  key={link.name}
+                  key={link.id}
                   onClick={() => handleLinkClick(link.id)}
                   className="text-slate-600 hover:text-teal-600 font-semibold transition-colors border-none bg-transparent cursor-pointer text-sm"
                 >
@@ -114,19 +126,29 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, isLoggedIn, onAdminClick, d
                     onClick={onAdminClick}
                     className="flex items-center gap-2 text-teal-600 bg-teal-50 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-teal-100 transition-all"
                   >
-                    <i className="fa-solid fa-user-shield"></i> Dashboard
+                    <i className="fa-solid fa-user-shield"></i> {t('nav.dashboard', 'Dashboard')}
                   </button>
                 ) : (
                   <button
                     onClick={() => setIsBookingOpen(true)}
                     className="bg-teal-600 text-white px-5 py-2.5 rounded-full font-semibold text-sm hover:bg-teal-700 transition-all shadow-md active:scale-95"
                   >
-                    Book Now
+                    {t('nav.bookNow', 'Book Now')}
                   </button>
                 )}
               </div>
             </div>
-            <div className="md:hidden flex items-center">
+            <div className="md:hidden flex items-center gap-3">
+              <button 
+                onClick={toggleLanguage}
+                className="flex items-center gap-1.5 text-slate-700 hover:text-teal-600 transition-colors px-2.5 py-1.5 rounded-lg bg-slate-100 text-xs font-bold border border-slate-200"
+                title={language === 'EN' ? 'Badilisha kuwa Kiswahili' : 'Switch to English'}
+              >
+                <i className="fa-solid fa-globe text-teal-600"></i>
+                <span className={language === 'EN' ? 'font-black text-teal-700' : 'text-slate-400'}>EN</span>
+                <span className="text-slate-300">/</span>
+                <span className={language === 'SW' ? 'font-black text-teal-700' : 'text-slate-400'}>SW</span>
+              </button>
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="text-slate-600 hover:text-teal-600 focus:outline-none p-2"
@@ -142,7 +164,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, isLoggedIn, onAdminClick, d
           <div className="md:hidden bg-white border-t border-slate-100 py-4 px-4 space-y-2 animate-in slide-in-from-top duration-300">
             {navLinks.map((link) => (
               <button
-                key={link.name}
+                key={link.id}
                 className="block w-full text-left px-4 py-3 rounded-xl text-base font-semibold text-slate-700 hover:text-teal-600 hover:bg-teal-50 border-none bg-transparent transition-all"
                 onClick={() => handleLinkClick(link.id)}
               >
@@ -157,7 +179,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, isLoggedIn, onAdminClick, d
                   setIsBookingOpen(true);
                 }}
               >
-                Book Consultation
+                {t('nav.bookConsultation', 'Book Consultation')}
               </button>
             </div>
             <div className="flex justify-center gap-8 py-6 border-t border-slate-50 mt-4">
@@ -169,7 +191,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, isLoggedIn, onAdminClick, d
               className="block w-full text-center text-slate-400 font-bold py-4 text-[10px] uppercase tracking-widest border-t border-slate-50"
               onClick={onAdminClick}
             >
-              Secure Staff Portal
+              {t('nav.securePortal', 'Secure Staff Portal')}
             </button>
           </div>
         )}

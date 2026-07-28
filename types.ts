@@ -15,8 +15,8 @@ export interface FAQ {
 
 export interface GalleryImage {
   url: string;
-  alt: string;
-  caption: string;
+  alt?: string;
+  caption?: string;
 }
 
 export interface DepartmentEvent {
@@ -58,7 +58,7 @@ export interface ChatMessage {
 export interface Resource {
   id: string;
   title: string;
-  category: 'Legislative Acts' | 'Hospital Forms' | 'Finance & Tenders' | 'Patient Guides';
+  category: 'Legislative Acts' | 'Hospital Forms' | 'Finance & Tenders' | 'Patient Guides' | 'Policies & Insurance';
   description: string;
   fileType: 'PDF' | 'DOCX' | 'XLSX';
   fileSize: string;
@@ -90,19 +90,28 @@ export interface SocialLinks {
 }
 
 export interface NewsItem {
-  id: number;
+  id: number | string;
   title: string;
   date: string;
   category: string;
+  department?: string;
   image: string;
+  gallery?: GalleryImage[];
   description: string;
+  content?: string;
+  archived?: boolean;
 }
 
 export interface EventItem {
-  id: number;
+  id: number | string;
   title: string;
   date: string;
   time: string;
   location: string;
+  department?: string;
   icon: string;
+  image?: string;
+  gallery?: GalleryImage[];
+  description?: string;
+  archived?: boolean;
 }

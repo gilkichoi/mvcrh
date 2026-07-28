@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { DetailedDepartment } from '../types';
+import { useLanguage } from '../LanguageContext';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface BookingModalProps {
 }
 
 const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, initialData, departments }) => {
+  const { tText } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -64,10 +66,10 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, initialDat
         }, 3000);
       } else {
         const errorData = await response.json();
-        setErrorMsg(errorData.message || 'Submission failed. Please try again.');
+        setErrorMsg(errorData.message || tText('Submission failed. Please try again.'));
       }
     } catch (error) {
-      setErrorMsg('Network error. Check your connection to the hospital server.');
+      setErrorMsg(tText('Network error. Check your connection to the hospital server.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -84,8 +86,8 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, initialDat
       <div className="relative bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
         <div className="bg-teal-600 px-8 py-6 text-white flex justify-between items-center">
           <div>
-            <h3 className="text-xl font-bold">Book a Consultation</h3>
-            <p className="text-teal-100 text-sm">Real-time database persistence</p>
+            <h3 className="text-xl font-bold">{tText('Book a Consultation')}</h3>
+            <p className="text-teal-100 text-sm">{tText('Real-time database persistence')}</p>
           </div>
           <button onClick={onClose} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10">
             <i className="fa-solid fa-xmark text-xl"></i>
@@ -98,8 +100,8 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, initialDat
               <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
                 <i className="fa-solid fa-calendar-check"></i>
               </div>
-              <h4 className="text-2xl font-bold text-slate-900 mb-2">Confirmed!</h4>
-              <p className="text-slate-600">Your record has been saved to the hospital database.</p>
+              <h4 className="text-2xl font-bold text-slate-900 mb-2">{tText('Confirmed!')}</h4>
+              <p className="text-slate-600">{tText('Your record has been saved to the hospital database.')}</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -109,21 +111,21 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, initialDat
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input required type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Patient Full Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl" />
-                <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone (e.g. 07xx)" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl" />
+                <input required type="text" name="name" value={formData.name} onChange={handleChange} placeholder={tText('Patient Full Name')} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl" />
+                <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder={tText('Phone Number')} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl" />
               </div>
               <select required name="department" value={formData.department} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl">
-                <option value="">Select Department</option>
-                {departments.map(dept => <option key={dept.id} value={dept.name}>{dept.name}</option>)}
+                <option value="">{tText('Select Department')}</option>
+                {departments.map(dept => <option key={dept.id} value={dept.name}>{tText(dept.name)}</option>)}
               </select>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input required type="date" name="date" value={formData.date} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl" />
-                <input required type="text" name="time" value={formData.time} onChange={handleChange} placeholder="Preferred Time" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl" />
+                <input required type="text" name="time" value={formData.time} onChange={handleChange} placeholder={tText('Preferred Time')} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl" />
               </div>
-              <textarea name="message" value={formData.message} onChange={handleChange} rows={2} placeholder="Symptom notes (optional)" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl resize-none"></textarea>
+              <textarea name="message" value={formData.message} onChange={handleChange} rows={2} placeholder={tText('How can we help you?')} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl resize-none"></textarea>
               <button type="submit" disabled={isSubmitting} className="w-full bg-teal-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-teal-700 disabled:bg-slate-300 flex items-center justify-center gap-3">
                 {isSubmitting ? <i className="fa-solid fa-spinner animate-spin"></i> : <i className="fa-solid fa-calendar-plus"></i>}
-                Secure Database Booking
+                {tText('Book Appointment')}
               </button>
             </form>
           )}

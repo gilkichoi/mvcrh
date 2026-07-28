@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Resource } from '../types';
+import { useLanguage } from '../LanguageContext';
 
 interface ResourcesPageProps {
   resources: Resource[];
@@ -8,8 +9,13 @@ interface ResourcesPageProps {
 const ResourcesPage: React.FC<ResourcesPageProps> = ({ resources }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const { t } = useLanguage();
 
-  const categories = ['All', 'Legislative Acts', 'Hospital Forms', 'Finance & Tenders', 'Patient Guides'];
+  const categories = ['All', 'Legislative Acts', 'Hospital Forms', 'Finance & Tenders', 'Patient Guides', 'Policies & Insurance'];
+
+  const policyDocument = useMemo(() => {
+    return resources.find(r => r.category === 'Policies & Insurance' && r.fileType === 'PDF');
+  }, [resources]);
 
   const filteredResources = useMemo(() => {
     return resources.filter(resource => {
@@ -45,10 +51,21 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({ resources }) => {
           <i className="fa-solid fa-book-medical absolute -bottom-10 left-10 text-[150px] text-white -rotate-12"></i>
         </div>
         <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6">Public Resources & Documents</h1>
-          <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6">{t('common.publicResources', 'Public Resources & Documents')}</h1>
+          <p className="text-slate-300 text-lg max-w-2xl mx-auto mb-8">
             Access and download important hospital forms, legislative acts, and county healthcare guidelines.
           </p>
+          {policyDocument && (
+            <a
+              href={policyDocument.downloadUrl}
+              onClick={(e) => handleDownload(e, policyDocument)}
+              download={policyDocument.downloadUrl !== 'javascript:void(0)'}
+              className="inline-flex items-center gap-3 bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-teal-500/25"
+            >
+              <i className="fa-solid fa-file-pdf text-xl"></i>
+              {t('common.downloadPolicies', 'Download Current Policies & Insurance')}
+            </a>
+          )}
         </div>
       </section>
 
@@ -61,7 +78,7 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({ resources }) => {
               <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
               <input 
                 type="text"
-                placeholder="Search documents by title or keyword..."
+                placeholder={t('common.searchResources', 'Search resources...')}
                 className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-teal-500 outline-none transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -78,7 +95,7 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({ resources }) => {
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
-                  {category}
+                  {t(category, category)}
                 </button>
               ))}
             </div>
@@ -108,7 +125,7 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({ resources }) => {
                   </p>
                   <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      {resource.category}
+                      {t(resource.category, resource.category)}
                     </span>
                     <a 
                       href={resource.downloadUrl}
@@ -116,7 +133,7 @@ const ResourcesPage: React.FC<ResourcesPageProps> = ({ resources }) => {
                       onClick={(e) => handleDownload(e, resource)}
                       download={resource.downloadUrl !== 'javascript:void(0)'}
                     >
-                      Download <i className="fa-solid fa-download"></i>
+                      {t('common.download', 'Download')} <i className="fa-solid fa-download"></i>
                     </a>
                   </div>
                 </div>

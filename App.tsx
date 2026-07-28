@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Navbar from './components/Navbar';
-import ChatWidget from './components/ChatWidget';
 import AccessibilityWidget from './components/AccessibilityWidget';
 import FeedbackForm from './components/FeedbackForm';
 import DepartmentDetail from './components/DepartmentDetail';
@@ -17,6 +16,7 @@ import ServicesPage from './components/ServicesPage';
 import AboutPage from './components/AboutPage';
 import ContactPage from './components/ContactPage';
 import BlogPage from './components/BlogPage';
+import { LanguageProvider, useLanguage } from './LanguageContext';
 import { DEPARTMENTS as INITIAL_DEPARTMENTS, SERVICES as INITIAL_SERVICES, RESOURCES as INITIAL_RESOURCES, SOCIAL_LINKS as INITIAL_SOCIAL_LINKS, NEWS as INITIAL_NEWS, EVENTS as INITIAL_EVENTS } from './constants';
 import { FeedbackEntry, DetailedDepartment, SocialLinks } from './types';
 
@@ -34,7 +34,8 @@ const DepartmentSkeleton = () => (
   </div>
 );
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { t } = useLanguage();
   const [departments, setDepartments] = useState<DetailedDepartment[]>(INITIAL_DEPARTMENTS);
   const [services, setServices] = useState(INITIAL_SERVICES);
   const [resources, setResources] = useState(INITIAL_RESOURCES);
@@ -182,15 +183,27 @@ const App: React.FC = () => {
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-xs uppercase tracking-widest font-bold">© 2026 Moi Voi County Referral Hospital</p>
+          <div className="flex justify-center items-center gap-3 mb-4">
+            <a 
+              href="https://www.facebook.com/people/Moi-County-Referral-Hospital-Voi/100089810477442/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-extrabold px-4 py-2 rounded-xl transition-all shadow-md"
+            >
+              <i className="fa-brands fa-facebook text-sm"></i>
+              <span>Official Facebook Page: Moi County Referral Hospital - Voi</span>
+              <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+          </div>
+          <p className="text-xs uppercase tracking-widest font-bold">{t('common.copyright', '© 2026 Moi Voi County Referral Hospital')}</p>
           <div className="flex justify-center gap-6 mt-6">
-             <button onClick={() => handleNavigate('admin')} className="hover:text-white transition-colors">Admin Dashboard</button>
-             <button onClick={() => handleNavigate('resources')} className="hover:text-white transition-colors">Resources</button>
+             <button onClick={() => handleNavigate('admin')} className="hover:text-white transition-colors">{t('common.adminDashboard', 'Admin Dashboard')}</button>
+             <button onClick={() => handleNavigate('resources')} className="hover:text-white transition-colors">{t('nav.resources', 'Resources')}</button>
+             <button onClick={() => handleNavigate('news')} className="hover:text-white transition-colors">{t('nav.news', 'Facebook & News Feed')}</button>
           </div>
         </div>
       </footer>
 
-      <ChatWidget departments={departments} />
       <AccessibilityWidget />
       <BookingModal 
         isOpen={isBookingOpen} 
@@ -199,6 +212,14 @@ const App: React.FC = () => {
         departments={departments}
       />
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 };
 

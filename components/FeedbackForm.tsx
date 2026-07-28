@@ -1,12 +1,14 @@
 
 import React, { useState } from 'react';
 import { FeedbackEntry } from '../types';
+import { useLanguage } from '../LanguageContext';
 
 interface FeedbackFormProps {
   onSubmit: (feedback: FeedbackEntry) => void;
 }
 
 const FeedbackForm: React.FC<FeedbackFormProps> = ({ onSubmit }) => {
+  const { tText } = useLanguage();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [formData, setFormData] = useState({
@@ -62,19 +64,19 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ onSubmit }) => {
         <div className="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg shadow-emerald-200">
           <i className="fa-solid fa-envelope-circle-check"></i>
         </div>
-        <h4 className="text-xl font-bold text-emerald-900 mb-2">Asante Sana!</h4>
+        <h4 className="text-xl font-bold text-emerald-900 mb-2">{tText('Asante Sana!')}</h4>
         <p className="text-emerald-700 text-sm mb-4">
-          Your feedback has been successfully emailed to our management team at <span className="font-bold underline">info@mvcrh.or.ke</span>.
+          {tText('Your feedback has been successfully emailed to our management team at')} <span className="font-bold underline">info@mvcrh.or.ke</span>.
         </p>
         <div className="bg-white/50 p-3 rounded-xl inline-block text-[10px] text-emerald-600 font-bold uppercase tracking-widest border border-emerald-100">
-          Reference: #{Date.now().toString().slice(-6)}
+          {tText('Reference:')} #{Date.now().toString().slice(-6)}
         </div>
         <div className="block mt-6">
           <button 
             onClick={() => setSubmitted(false)}
             className="text-emerald-600 font-bold text-sm underline hover:text-emerald-800"
           >
-            Submit another response
+            {tText('Submit another response')}
           </button>
         </div>
       </div>
@@ -84,13 +86,13 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ onSubmit }) => {
   return (
     <div className="bg-slate-50 border border-slate-200 p-8 rounded-3xl shadow-sm">
       <h4 className="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-        <i className="fa-solid fa-pen-to-square text-teal-600"></i> Patient Experience
+        <i className="fa-solid fa-pen-to-square text-teal-600"></i> {tText('Patient Experience')}
       </h4>
-      <p className="text-slate-600 text-sm mb-6">Your voice matters to us. Your feedback will be sent directly to <span className="font-semibold">info@mvcrh.or.ke</span>.</p>
+      <p className="text-slate-600 text-sm mb-6">{tText('Your voice matters to us. Your feedback will be sent directly to')} <span className="font-semibold">info@mvcrh.or.ke</span>.</p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Overall Experience</label>
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{tText('Overall Experience')}</label>
           <div className="flex gap-2">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -110,37 +112,37 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ onSubmit }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Name</label>
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{tText('Your Name')}</label>
             <input
               required
               type="text"
               className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm"
-              placeholder="Full name"
+              placeholder={tText('Full name')}
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Category</label>
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{tText('Category')}</label>
             <select
               className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm"
               value={formData.category}
               onChange={(e) => setFormData({...formData, category: e.target.value})}
             >
               {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat} value={cat}>{tText(cat)}</option>
               ))}
             </select>
           </div>
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Comments & Suggestions</label>
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{tText('Comments & Suggestions')}</label>
           <textarea
             required
             rows={4}
             className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm resize-none"
-            placeholder="Tell us about your experience..."
+            placeholder={tText('Tell us about your experience...')}
             value={formData.comments}
             onChange={(e) => setFormData({...formData, comments: e.target.value})}
           />
@@ -152,9 +154,9 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ onSubmit }) => {
           className="w-full bg-teal-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-teal-700 active:scale-[0.98] transition-all disabled:bg-slate-300 flex items-center justify-center gap-3"
         >
           {isSubmitting ? (
-            <><i className="fa-solid fa-paper-plane animate-pulse"></i> Disptaching to Management...</>
+            <><i className="fa-solid fa-paper-plane animate-pulse"></i> {tText('Sending...')}</>
           ) : (
-            <><i className="fa-solid fa-paper-plane"></i> Submit Feedback</>
+            <><i className="fa-solid fa-paper-plane"></i> {tText('Submit Feedback')}</>
           )}
         </button>
       </form>

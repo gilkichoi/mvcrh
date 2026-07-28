@@ -55,6 +55,113 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [resourceModalOpen, setResourceModalOpen] = useState(false);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
 
+  // News State
+  const [newsModalOpen, setNewsModalOpen] = useState(false);
+  const [editingNews, setEditingNews] = useState<NewsItem | null>(null);
+  const [newsFilter, setNewsFilter] = useState<'all' | 'active' | 'archived'>('all');
+  const [newsGallery, setNewsGallery] = useState<{ url: string; caption?: string; alt?: string }[]>([]);
+
+  // Events State
+  const [eventModalOpen, setEventModalOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
+  const [eventsFilter, setEventsFilter] = useState<'all' | 'active' | 'archived'>('all');
+  const [eventGallery, setEventGallery] = useState<{ url: string; caption?: string; alt?: string }[]>([]);
+
+  // News handlers
+  const openAddNews = () => {
+    setEditingNews(null);
+    setNewsGallery([]);
+    setNewsModalOpen(true);
+  };
+
+  const openEditNews = (item: NewsItem) => {
+    setEditingNews(item);
+    setNewsGallery(item.gallery || []);
+    setNewsModalOpen(true);
+  };
+
+  const toggleArchiveNews = (id: number | string) => {
+    setNewsItems(prev => prev.map(item => item.id === id ? { ...item, archived: !item.archived } : item));
+  };
+
+  const deleteNews = (id: number | string) => {
+    if (window.confirm('Are you sure you want to delete this news article?')) {
+      setNewsItems(prev => prev.filter(item => item.id !== id));
+    }
+  };
+
+  const saveNews = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const newNews: NewsItem = {
+      id: editingNews?.id || 'news-' + Date.now(),
+      title: formData.get('title') as string,
+      date: formData.get('date') as string,
+      category: formData.get('category') as string,
+      department: formData.get('department') as string,
+      image: (formData.get('image') as string) || 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=600',
+      description: formData.get('description') as string,
+      content: formData.get('content') as string,
+      gallery: newsGallery.filter(g => g.url.trim() !== '').map(g => ({ url: g.url, caption: g.caption || '', alt: g.caption || 'News Image' })),
+      archived: formData.get('archived') === 'on'
+    };
+
+    if (editingNews) {
+      setNewsItems(prev => prev.map(n => n.id === newNews.id ? newNews : n));
+    } else {
+      setNewsItems(prev => [newNews, ...prev]);
+    }
+    setNewsModalOpen(false);
+  };
+
+  // Event handlers
+  const openAddEvent = () => {
+    setEditingEvent(null);
+    setEventGallery([]);
+    setEventModalOpen(true);
+  };
+
+  const openEditEvent = (item: EventItem) => {
+    setEditingEvent(item);
+    setEventGallery(item.gallery || []);
+    setEventModalOpen(true);
+  };
+
+  const toggleArchiveEvent = (id: number | string) => {
+    setEventItems(prev => prev.map(item => item.id === id ? { ...item, archived: !item.archived } : item));
+  };
+
+  const deleteEvent = (id: number | string) => {
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      setEventItems(prev => prev.filter(item => item.id !== id));
+    }
+  };
+
+  const saveEvent = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const newEv: EventItem = {
+      id: editingEvent?.id || 'ev-' + Date.now(),
+      title: formData.get('title') as string,
+      date: formData.get('date') as string,
+      time: formData.get('time') as string,
+      location: formData.get('location') as string,
+      department: formData.get('department') as string,
+      icon: (formData.get('icon') as string) || 'fa-calendar-days',
+      image: (formData.get('image') as string) || 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=600',
+      description: formData.get('description') as string,
+      gallery: eventGallery.filter(g => g.url.trim() !== '').map(g => ({ url: g.url, caption: g.caption || '', alt: g.caption || 'Event Image' })),
+      archived: formData.get('archived') === 'on'
+    };
+
+    if (editingEvent) {
+      setEventItems(prev => prev.map(ev => ev.id === newEv.id ? newEv : ev));
+    } else {
+      setEventItems(prev => [newEv, ...prev]);
+    }
+    setEventModalOpen(false);
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (username === 'admin' && password === 'admin123') {
@@ -525,6 +632,246 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           )}
 
+          {/* NEWS TAB */}
+          {activeTab === 'news' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900">Hospital News & Announcements</h2>
+                  <p className="text-slate-500 text-sm">Add, edit, archive, and manage news articles, main pictures, galleries, and department tags.</p>
+                </div>
+                <button 
+                  onClick={openAddNews}
+                  className="bg-teal-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-teal-700 transition-all flex items-center gap-2 self-start sm:self-auto"
+                >
+                  <i className="fa-solid fa-plus"></i> Add News Article
+                </button>
+              </div>
+
+              {/* Filter Buttons */}
+              <div className="flex gap-2 border-b border-slate-200 pb-3">
+                <button 
+                  onClick={() => setNewsFilter('all')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${newsFilter === 'all' ? 'bg-teal-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+                >
+                  All News ({newsItems.length})
+                </button>
+                <button 
+                  onClick={() => setNewsFilter('active')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${newsFilter === 'active' ? 'bg-teal-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+                >
+                  Active ({newsItems.filter(n => !n.archived).length})
+                </button>
+                <button 
+                  onClick={() => setNewsFilter('archived')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${newsFilter === 'archived' ? 'bg-teal-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+                >
+                  Archived ({newsItems.filter(n => n.archived).length})
+                </button>
+              </div>
+
+              {/* News Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {newsItems
+                  .filter(item => {
+                    if (newsFilter === 'active') return !item.archived;
+                    if (newsFilter === 'archived') return item.archived;
+                    return true;
+                  })
+                  .map(item => (
+                    <div key={item.id} className={`bg-white border rounded-2xl overflow-hidden shadow-sm flex flex-col ${item.archived ? 'border-amber-200 bg-amber-50/30' : 'border-slate-200'}`}>
+                      <div className="h-44 relative bg-slate-100 overflow-hidden">
+                        <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                        <div className="absolute top-3 left-3 flex flex-wrap gap-1 max-w-[80%]">
+                          <span className="bg-teal-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">
+                            {item.category}
+                          </span>
+                          {item.department && (
+                            <span className="bg-slate-900/80 backdrop-blur text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                              {item.department}
+                            </span>
+                          )}
+                        </div>
+                        <div className="absolute top-3 right-3">
+                          <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm ${item.archived ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white'}`}>
+                            {item.archived ? 'Archived' : 'Active'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-5 flex-1 flex flex-col">
+                        <p className="text-xs font-semibold text-slate-400 mb-2 flex items-center gap-2">
+                          <i className="fa-regular fa-calendar text-teal-600"></i> {item.date}
+                        </p>
+                        <h3 className="font-bold text-slate-900 text-base mb-2 line-clamp-2">{item.title}</h3>
+                        <p className="text-slate-600 text-xs line-clamp-3 mb-4 flex-1">{item.description}</p>
+
+                        {item.gallery && item.gallery.length > 0 && (
+                          <p className="text-[11px] font-bold text-teal-600 mb-4 flex items-center gap-1.5">
+                            <i className="fa-solid fa-images"></i> {item.gallery.length} Gallery Photos
+                          </p>
+                        )}
+
+                        <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-auto gap-2">
+                          <button 
+                            onClick={() => openEditNews(item)}
+                            className="flex-1 bg-slate-100 text-slate-700 hover:bg-slate-200 py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
+                          >
+                            <i className="fa-solid fa-pen"></i> Edit
+                          </button>
+                          <button 
+                            onClick={() => toggleArchiveNews(item.id)}
+                            className={`px-3 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1 ${item.archived ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}
+                            title={item.archived ? "Unarchive" : "Archive"}
+                          >
+                            <i className={`fa-solid ${item.archived ? 'fa-box-open' : 'fa-box-archive'}`}></i>
+                            {item.archived ? 'Restore' : 'Archive'}
+                          </button>
+                          <button 
+                            onClick={() => deleteNews(item.id)}
+                            className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 rounded-xl text-xs font-bold transition-colors"
+                            title="Delete"
+                          >
+                            <i className="fa-solid fa-trash-can"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* EVENTS TAB */}
+          {activeTab === 'events' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900">Hospital Events & Workshops</h2>
+                  <p className="text-slate-500 text-sm">Add, edit, archive, and manage upcoming hospital events, photos, dates, locations, and departments.</p>
+                </div>
+                <button 
+                  onClick={openAddEvent}
+                  className="bg-teal-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-teal-700 transition-all flex items-center gap-2 self-start sm:self-auto"
+                >
+                  <i className="fa-solid fa-plus"></i> Add Event
+                </button>
+              </div>
+
+              {/* Filter Buttons */}
+              <div className="flex gap-2 border-b border-slate-200 pb-3">
+                <button 
+                  onClick={() => setEventsFilter('all')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${eventsFilter === 'all' ? 'bg-teal-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+                >
+                  All Events ({eventItems.length})
+                </button>
+                <button 
+                  onClick={() => setEventsFilter('active')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${eventsFilter === 'active' ? 'bg-teal-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+                >
+                  Active ({eventItems.filter(e => !e.archived).length})
+                </button>
+                <button 
+                  onClick={() => setEventsFilter('archived')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${eventsFilter === 'archived' ? 'bg-teal-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+                >
+                  Archived ({eventItems.filter(e => e.archived).length})
+                </button>
+              </div>
+
+              {/* Event Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {eventItems
+                  .filter(item => {
+                    if (eventsFilter === 'active') return !item.archived;
+                    if (eventsFilter === 'archived') return item.archived;
+                    return true;
+                  })
+                  .map(item => (
+                    <div key={item.id} className={`bg-white border rounded-2xl overflow-hidden shadow-sm flex flex-col ${item.archived ? 'border-amber-200 bg-amber-50/30' : 'border-slate-200'}`}>
+                      <div className="h-44 relative bg-slate-100 overflow-hidden">
+                        {item.image ? (
+                          <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-teal-800 flex items-center justify-center text-white text-4xl">
+                            <i className={`fa-solid ${item.icon || 'fa-calendar-days'}`}></i>
+                          </div>
+                        )}
+                        {item.department && (
+                          <div className="absolute top-3 left-3">
+                            <span className="bg-slate-900/80 backdrop-blur text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                              {item.department}
+                            </span>
+                          </div>
+                        )}
+                        <div className="absolute top-3 right-3">
+                          <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm ${item.archived ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white'}`}>
+                            {item.archived ? 'Archived' : 'Active'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-5 flex-1 flex flex-col">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-sm">
+                            <i className={`fa-solid ${item.icon || 'fa-calendar-days'}`}></i>
+                          </div>
+                          <h3 className="font-bold text-slate-900 text-base line-clamp-1">{item.title}</h3>
+                        </div>
+
+                        <div className="space-y-1.5 my-3 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                          <p className="flex items-center gap-2 font-semibold">
+                            <i className="fa-regular fa-calendar text-teal-600 w-4"></i> {item.date}
+                          </p>
+                          <p className="flex items-center gap-2 font-semibold">
+                            <i className="fa-regular fa-clock text-teal-600 w-4"></i> {item.time}
+                          </p>
+                          <p className="flex items-center gap-2 font-semibold">
+                            <i className="fa-solid fa-location-dot text-teal-600 w-4"></i> {item.location}
+                          </p>
+                        </div>
+
+                        {item.description && (
+                          <p className="text-slate-600 text-xs line-clamp-2 mb-4">{item.description}</p>
+                        )}
+
+                        {item.gallery && item.gallery.length > 0 && (
+                          <p className="text-[11px] font-bold text-teal-600 mb-4 flex items-center gap-1.5">
+                            <i className="fa-solid fa-images"></i> {item.gallery.length} Gallery Photos
+                          </p>
+                        )}
+
+                        <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-auto gap-2">
+                          <button 
+                            onClick={() => openEditEvent(item)}
+                            className="flex-1 bg-slate-100 text-slate-700 hover:bg-slate-200 py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
+                          >
+                            <i className="fa-solid fa-pen"></i> Edit
+                          </button>
+                          <button 
+                            onClick={() => toggleArchiveEvent(item.id)}
+                            className={`px-3 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1 ${item.archived ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}
+                            title={item.archived ? "Unarchive" : "Archive"}
+                          >
+                            <i className={`fa-solid ${item.archived ? 'fa-box-open' : 'fa-box-archive'}`}></i>
+                            {item.archived ? 'Restore' : 'Archive'}
+                          </button>
+                          <button 
+                            onClick={() => deleteEvent(item.id)}
+                            className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 rounded-xl text-xs font-bold transition-colors"
+                            title="Delete"
+                          >
+                            <i className="fa-solid fa-trash-can"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+
           {/* SETTINGS TAB */}
           {activeTab === 'settings' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -802,6 +1149,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <option value="Hospital Forms">Hospital Forms</option>
                   <option value="Finance & Tenders">Finance & Tenders</option>
                   <option value="Patient Guides">Patient Guides</option>
+                  <option value="Policies & Insurance">Policies & Insurance</option>
                 </select>
               </div>
               <div>
@@ -827,6 +1175,303 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <input name="downloadUrl" defaultValue={editingResource?.downloadUrl || 'javascript:void(0)'} required className="w-full px-4 py-2 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-teal-500" />
               </div>
               <button type="submit" className="w-full bg-teal-600 text-white font-bold py-3 rounded-xl mt-4 hover:bg-teal-700">{editingResource ? 'Save Changes' : 'Upload Document'}</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* News Modal */}
+      {newsModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900">{editingNews ? 'Edit News Article' : 'Add News Article'}</h2>
+                <p className="text-xs text-slate-500 font-medium">Configure news title, category, department, main picture, and photo gallery.</p>
+              </div>
+              <button onClick={() => setNewsModalOpen(false)} className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+                <i className="fa-solid fa-xmark text-lg"></i>
+              </button>
+            </div>
+
+            <form onSubmit={saveNews} className="space-y-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Article Title *</label>
+                <input name="title" defaultValue={editingNews?.title} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 transition-all font-semibold text-slate-800" placeholder="e.g. New Digital X-Ray Machine Installed" />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Date *</label>
+                  <input name="date" defaultValue={editingNews?.date || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Oct 10, 2026" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Category *</label>
+                  <input name="category" defaultValue={editingNews?.category || 'Facility Upgrade'} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Health Campaign, Facility Upgrade" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Associated Department</label>
+                <select name="department" defaultValue={editingNews?.department || 'All Departments'} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                  <option value="All Departments">All Departments / General</option>
+                  {departments.map(d => (
+                    <option key={d.id} value={d.name}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Main Picture URL *</label>
+                <input 
+                  name="image" 
+                  defaultValue={editingNews?.image || 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=600'} 
+                  required 
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm" 
+                  placeholder="https://images.unsplash.com/..." 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Short Excerpt / Summary *</label>
+                <textarea name="description" defaultValue={editingNews?.description} required rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm" placeholder="Brief 1-2 sentence description..."></textarea>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Full Article Content</label>
+                <textarea name="content" defaultValue={editingNews?.content} rows={4} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm" placeholder="Detailed story content..."></textarea>
+              </div>
+
+              {/* Gallery Images Management */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest">Photo Gallery ({newsGallery.length} photos)</label>
+                  <button 
+                    type="button" 
+                    onClick={() => setNewsGallery(prev => [...prev, { url: '', caption: '' }])}
+                    className="text-xs font-bold text-teal-600 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-600 hover:text-white transition-all flex items-center gap-1"
+                  >
+                    <i className="fa-solid fa-plus text-[10px]"></i> Add Gallery Photo
+                  </button>
+                </div>
+
+                {newsGallery.length === 0 ? (
+                  <p className="text-xs text-slate-400 italic">No gallery photos added yet. Click above to add photo URLs.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {newsGallery.map((photo, idx) => (
+                      <div key={idx} className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col sm:flex-row gap-3 items-center">
+                        <div className="w-16 h-12 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0 border">
+                          {photo.url ? <img src={photo.url} alt="Gallery" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs"><i className="fa-regular fa-image"></i></div>}
+                        </div>
+                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
+                          <input 
+                            type="text" 
+                            placeholder="Image URL" 
+                            value={photo.url}
+                            onChange={(e) => {
+                              const newUrl = e.target.value;
+                              setNewsGallery(prev => prev.map((g, i) => i === idx ? { ...g, url: newUrl } : g));
+                            }}
+                            className="px-3 py-1.5 text-xs bg-slate-50 border rounded-lg outline-none focus:ring-1 focus:ring-teal-500"
+                          />
+                          <input 
+                            type="text" 
+                            placeholder="Caption / Description" 
+                            value={photo.caption || ''}
+                            onChange={(e) => {
+                              const newCap = e.target.value;
+                              setNewsGallery(prev => prev.map((g, i) => i === idx ? { ...g, caption: newCap } : g));
+                            }}
+                            className="px-3 py-1.5 text-xs bg-slate-50 border rounded-lg outline-none focus:ring-1 focus:ring-teal-500"
+                          />
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => setNewsGallery(prev => prev.filter((_, i) => i !== idx))}
+                          className="text-red-500 hover:text-red-700 p-2"
+                          title="Remove Photo"
+                        >
+                          <i className="fa-solid fa-trash-can"></i>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Archive toggle */}
+              <div className="flex items-center gap-3 bg-amber-50/50 p-4 rounded-xl border border-amber-200">
+                <input 
+                  type="checkbox" 
+                  id="news-archived" 
+                  name="archived" 
+                  defaultChecked={editingNews?.archived || false} 
+                  className="w-5 h-5 text-teal-600 rounded focus:ring-teal-500"
+                />
+                <label htmlFor="news-archived" className="text-xs font-bold text-slate-700 cursor-pointer">
+                  Archive this news article (Hides it from active news feed)
+                </label>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setNewsModalOpen(false)} className="flex-1 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" className="flex-1 bg-teal-600 text-white font-bold py-3 rounded-xl hover:bg-teal-700 transition-colors shadow-md">
+                  {editingNews ? 'Save Changes' : 'Publish Article'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Event Modal */}
+      {eventModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900">{editingEvent ? 'Edit Event' : 'Add New Event'}</h2>
+                <p className="text-xs text-slate-500 font-medium">Configure event details, date, time, location, department, picture, and gallery.</p>
+              </div>
+              <button onClick={() => setEventModalOpen(false)} className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+                <i className="fa-solid fa-xmark text-lg"></i>
+              </button>
+            </div>
+
+            <form onSubmit={saveEvent} className="space-y-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Event Title *</label>
+                <input name="title" defaultValue={editingEvent?.title} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 font-semibold text-slate-800" placeholder="e.g. Community Blood Drive" />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Date *</label>
+                  <input name="date" defaultValue={editingEvent?.date || 'Oct 25, 2026'} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Oct 25, 2026" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Time *</label>
+                  <input name="time" defaultValue={editingEvent?.time || '09:00 AM - 04:00 PM'} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. 09:00 AM - 04:00 PM" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Location *</label>
+                  <input name="location" defaultValue={editingEvent?.location || 'Main Hospital Grounds'} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. Main Hospital Grounds" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">FontAwesome Icon</label>
+                  <input name="icon" defaultValue={editingEvent?.icon || 'fa-droplet'} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g. fa-droplet, fa-calendar-days, fa-eye" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Associated Department</label>
+                <select name="department" defaultValue={editingEvent?.department || 'All Departments'} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                  <option value="All Departments">All Departments / General</option>
+                  {departments.map(d => (
+                    <option key={d.id} value={d.name}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Main Event Picture URL</label>
+                <input name="image" defaultValue={editingEvent?.image} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm" placeholder="https://images.unsplash.com/..." />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">Event Description</label>
+                <textarea name="description" defaultValue={editingEvent?.description} rows={3} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 text-sm" placeholder="Details about this event..."></textarea>
+              </div>
+
+              {/* Gallery Images Management */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest">Event Photo Gallery ({eventGallery.length} photos)</label>
+                  <button 
+                    type="button" 
+                    onClick={() => setEventGallery(prev => [...prev, { url: '', caption: '' }])}
+                    className="text-xs font-bold text-teal-600 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-600 hover:text-white transition-all flex items-center gap-1"
+                  >
+                    <i className="fa-solid fa-plus text-[10px]"></i> Add Photo
+                  </button>
+                </div>
+
+                {eventGallery.length === 0 ? (
+                  <p className="text-xs text-slate-400 italic">No gallery photos added yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {eventGallery.map((photo, idx) => (
+                      <div key={idx} className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col sm:flex-row gap-3 items-center">
+                        <div className="w-16 h-12 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0 border">
+                          {photo.url ? <img src={photo.url} alt="Gallery" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs"><i className="fa-regular fa-image"></i></div>}
+                        </div>
+                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
+                          <input 
+                            type="text" 
+                            placeholder="Image URL" 
+                            value={photo.url}
+                            onChange={(e) => {
+                              const newUrl = e.target.value;
+                              setEventGallery(prev => prev.map((g, i) => i === idx ? { ...g, url: newUrl } : g));
+                            }}
+                            className="px-3 py-1.5 text-xs bg-slate-50 border rounded-lg outline-none focus:ring-1 focus:ring-teal-500"
+                          />
+                          <input 
+                            type="text" 
+                            placeholder="Caption / Description" 
+                            value={photo.caption || ''}
+                            onChange={(e) => {
+                              const newCap = e.target.value;
+                              setEventGallery(prev => prev.map((g, i) => i === idx ? { ...g, caption: newCap } : g));
+                            }}
+                            className="px-3 py-1.5 text-xs bg-slate-50 border rounded-lg outline-none focus:ring-1 focus:ring-teal-500"
+                          />
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => setEventGallery(prev => prev.filter((_, i) => i !== idx))}
+                          className="text-red-500 hover:text-red-700 p-2"
+                          title="Remove Photo"
+                        >
+                          <i className="fa-solid fa-trash-can"></i>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Archive toggle */}
+              <div className="flex items-center gap-3 bg-amber-50/50 p-4 rounded-xl border border-amber-200">
+                <input 
+                  type="checkbox" 
+                  id="event-archived" 
+                  name="archived" 
+                  defaultChecked={editingEvent?.archived || false} 
+                  className="w-5 h-5 text-teal-600 rounded focus:ring-teal-500"
+                />
+                <label htmlFor="event-archived" className="text-xs font-bold text-slate-700 cursor-pointer">
+                  Archive this event (Hides it from active upcoming events)
+                </label>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setEventModalOpen(false)} className="flex-1 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" className="flex-1 bg-teal-600 text-white font-bold py-3 rounded-xl hover:bg-teal-700 transition-colors shadow-md">
+                  {editingEvent ? 'Save Changes' : 'Save Event'}
+                </button>
+              </div>
             </form>
           </div>
         </div>
